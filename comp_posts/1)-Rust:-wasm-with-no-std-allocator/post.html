@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html class="dark">
+<head>
+<link href="../../index.css" rel="stylesheet">
+<script>
+function resizeIframe(obj) {
+    obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    obj.contentWindow.document.body.style.color = "white"
+    for (el of obj.contentWindow.document.getElementsByTagName("a")) {
+        el.style.color = "\#77e1cd"
+    }
+  }
+
+</script>
+</head>
+<body>
+<h1><a href="/">tdep's blog</a></h1>
+<div id="post">
+<iframe src="./index.html" frameborder="0" scrolling="no" width="100%" onload="resizeIframe(this)" />
+</div>
+     <script>
+function resizeIframe(obj) {
+    obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+    obj.style.color = "\#fff"
+  }
+
+/*fetch("./index.html").then(resp => resp.text().then(content => {
+const post = document.createElement("div");
+post.innerHTML = /<BODY.*?>([\s\S]*)<\/BODY>/.exec(content)[1];
+document.body.appendChild(post);
+}));
+*/
+
+</script>
+</body>
+</html>
