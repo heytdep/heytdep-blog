@@ -48,20 +48,20 @@ When we need an allocator but aren't using the standard library compiling to WAS
 
 <P>
 <TABLE FRAME="VOID" CELLPADDING="4"><TR><TD>
+<SPAN CLASS="SMALL"><TT>
 <PRE>
 error: no global memory allocator found but one is required; link to std or add `#[global_allocator]` to a static item that implements the GlobalAlloc trait.
 
 error: `#[alloc_error_handler]` function required, but not found.
 </PRE>
+</TT></SPAN>
 </TD></TR></TABLE>
 
 <P>
 Rather than finding a workaround for our allocations, we can easily use the <SPAN  CLASS="texttt">wee allocator</SPAN> after adding it to our library's dependencies (<SPAN  CLASS="texttt">wee_alloc = "0.4.5"</SPAN>):
 
 <P>
-<TABLE FRAME="VOID" CELLPADDING="4"><TR><TD>
 <PRE>
-
   extern crate wee_alloc;
   ...
   use core::instrinsics;
@@ -77,7 +77,6 @@ Rather than finding a workaround for our allocations, we can easily use the <SPA
     }
   }
 </PRE>
-</TD></TR></TABLE>
 
 <P>
 And that's it!

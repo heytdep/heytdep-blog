@@ -34,15 +34,15 @@ fn build_handler(name: String) {
     let mut parent = format!(
         r#"
 <!DOCTYPE html>
-<html class="dark">
+<html class="">
 <head>
 <link href="../../index.css" rel="stylesheet">
 <script>
 function resizeIframe(obj) {{
     obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
-    obj.contentWindow.document.body.style.color = "white"
+    //obj.contentWindow.document.body.style.color = "white"
     for (el of obj.contentWindow.document.getElementsByTagName("a")) {{
-        el.style.color = "\#77e1cd"
+        el.style.color = "\#337AB7"
     }}
   }}
 
@@ -98,7 +98,7 @@ fn to_html(name: String) {
 fn gen_index_content(posts: Vec<String>) -> String {
     let mut head = String::from(
         r#"<!DOCTYPE html>
-<html class="dark">
+<html class="">
 <meta charset="UTF-8">
 <head> 
 <link href="index.css" rel="stylesheet">
@@ -126,16 +126,26 @@ fn gen_index_content(posts: Vec<String>) -> String {
     let mut ul = String::from(
         r#"
 <body>
+<div id="content">
 <div class="heading">
-<h1><a href="/">tdep's blog</a></h1>
+<h1>tdep's website</h1>
+<hr/>
 <div class="description">
-<p>This is my secondary blog, where I write about everyday code challenges, cryptography, smart contracts, and everything that is of a more intermediate/advanced level that don't have much traction in <a target="_blank" href="https://tdep.medium.com/">my primary blog</a></p>
+<p>This is my secondary blog, where I write about everyday code challenges, cryptography, smart contracts, and everything that is of a more intermediate/advanced level that doesn't have much traction on <a target="_blank" href="https://tdep.medium.com/">my Medium primary blog</a>.</p>
 </div>
+<div id="icons">
+    <ul>
+        <li><a target="_blank" href="https://twitter.com/heytdep"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-twitter" viewBox="0 0 16 16"> <path d="M5.026 15c6.038 0 9.341-5.003 9.341-9.334 0-.14 0-.282-.006-.422A6.685 6.685 0 0 0 16 3.542a6.658 6.658 0 0 1-1.889.518 3.301 3.301 0 0 0 1.447-1.817 6.533 6.533 0 0 1-2.087.793A3.286 3.286 0 0 0 7.875 6.03a9.325 9.325 0 0 1-6.767-3.429 3.289 3.289 0 0 0 1.018 4.382A3.323 3.323 0 0 1 .64 6.575v.045a3.288 3.288 0 0 0 2.632 3.218 3.203 3.203 0 0 1-.865.115 3.23 3.23 0 0 1-.614-.057 3.283 3.283 0 0 0 3.067 2.277A6.588 6.588 0 0 1 .78 13.58a6.32 6.32 0 0 1-.78-.045A9.344 9.344 0 0 0 5.026 15z"/> </svg> </a></li>
+        <li><a target="_blank" href="https://tdep.medium.com/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-medium" viewBox="0 0 16 16"> <path d="M9.025 8c0 2.485-2.02 4.5-4.513 4.5A4.506 4.506 0 0 1 0 8c0-2.486 2.02-4.5 4.512-4.5A4.506 4.506 0 0 1 9.025 8zm4.95 0c0 2.34-1.01 4.236-2.256 4.236-1.246 0-2.256-1.897-2.256-4.236 0-2.34 1.01-4.236 2.256-4.236 1.246 0 2.256 1.897 2.256 4.236zM16 8c0 2.096-.355 3.795-.794 3.795-.438 0-.793-1.7-.793-3.795 0-2.096.355-3.795.794-3.795.438 0 .793 1.699.793 3.795z"/> </svg></a></li>
+        <li><a target="_blank" href="https://tdep.xycloo.com/"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house-door-fill" viewBox="0 0 16 16"> <path d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5z"/> </svg></a></li>
+    </ul>
+</div>
+<hr/>
 </div>
 <div class="articles"><ul>"#,
     );
     ul.push_str(&li_list);
-    ul.push_str("</ul></div></body>");
+    ul.push_str("</ul></div></div></body>");
 
     head.push_str(&ul);
     head

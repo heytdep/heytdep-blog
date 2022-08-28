@@ -62,5 +62,6 @@ TABLE		{ border-collapse: collapse; }
 /* document-specific styles come next */
 DIV.navigation		{   }
 PRE.preform		{   }
+DIV.small		{   }
 SPAN.arabic		{   }
 SPAN.texttt		{ font-family: monospace  }

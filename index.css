@@ -57,7 +57,37 @@ html, body {
   color: var(--color-text);
 }
 
+#icons ul li {
+    display: inline-block;
+}
+
 body {}
+
+ul {
+    list-style: none;
+}
+
+#content {
+    width: 90%;
+    margin: auto;
+    max-width: 800px;
+}
+
+.heading {
+    margin-top: 8em;
+    text-align: center;
+    padding-bottom: 20px;
+}
+
+.heading h1 {    
+    margin-bottom: 1em;
+}
+
+.description {
+    text-align: left;
+    width: 100%;
+    margin:auto;
+}
 
 /*
   Typography & doc elements
@@ -73,10 +103,13 @@ body {}
 
 a:link, a:visited, a:active, a:checked {
   color: var(--color-anchor);
+  text-decoration: none;
 }
 
-#doc hr {
+hr {
   background-color: var(--color-divider);
+  height: 0.25em;
+  border:none;
 }
 
 #doc blockquote, .markdown-body blockquote,
