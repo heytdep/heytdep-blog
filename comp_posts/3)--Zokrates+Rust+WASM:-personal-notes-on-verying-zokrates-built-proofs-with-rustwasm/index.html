@@ -1,0 +1,23 @@
+<p><code>29 aug 2022</code></p>
+<h1 id="introduction">Introduction</h1>
+<p>Personal notes on writing a Rust verifier for zokrates-generated
+veryifing key and proof, depending on my <code>ark-groth16</code> fork.
+The fork is designed to target WebAssembly, effectively making it easily
+cross-platform without issues, furthermore it leverages the amazing work
+from the people at arkworks and isn’t depentent on Rust’s standard
+library.</p>
+<h1 id="workflow">Workflow</h1>
+<p>’s function accepts three parameters: a struct, the proof and the
+public inputs (these two have a familiar look).</p>
+<p>The function seems to only accept the public inputs in a raw format,
+while the verifying key must be prepared before through the function,
+which accepts a struct, which has a familiar look (to the one built by
+zokrates).</p>
+<p>It’s also worth noting that arkworks doesn’t seem to have implemented
+the curve, probably also because it doesn’t <a
+href="https://moderncrypto.org/mail-archive/curves/2016/000740.html">actually</a>
+target 128bit security.</p>
+<h1 id="possible-approach">Possible Approach</h1>
+<p>Firstly, one should remember to compile the code with the or .
+Secondly, convert zokrates’ output from hexadecimal to decimal
+numbers.</p>
