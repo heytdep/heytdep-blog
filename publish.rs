@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::process::Command;
+use std::str;
 
 fn get_drafts() -> fs::ReadDir {
     let paths = fs::read_dir("./drafts").unwrap();
@@ -38,6 +39,12 @@ fn build_handler(name: String) {
 <head>
 <link href="../../index.css" rel="stylesheet">
 <script>
+fetch("./index.html").then(resp => resp.text().then(content => {{
+    const post = document.createElement("div");
+    post.innerHTML =content;
+    document.getElementById("post").appendChild(post);
+}}));
+/*
 function resizeIframe(obj) {{
     obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
     //obj.contentWindow.document.body.style.color = "white"
@@ -45,13 +52,14 @@ function resizeIframe(obj) {{
         el.style.color = "\#337AB7"
     }}
   }}
-
+*/
 </script>
 </head>
 <body>
 <h1><a href="/">tdep's blog</a></h1>
 <div id="post">
-<iframe src="./index.html" frameborder="0" scrolling="no" width="100%" onload="resizeIframe(this)" />
+
+<!--<iframe src="./index.html" frameborder="0" scrolling="no" width="100%" onload="resizeIframe(this)" />-->
 </div>
      <script>
 function resizeIframe(obj) {{
@@ -74,6 +82,36 @@ document.body.appendChild(post);
 
     let mut file = File::create(format!("./comp_posts/{}/post.html", &dir_name)).unwrap();
     file.write_all(parent.as_bytes());
+}
+
+fn to_html_pd(name: String) {
+    let splitted: &Vec<&str> = &name.split(".").collect();
+    let dir_name = splitted[0];
+
+    let mut child1 = Command::new("mkdir")
+        .arg(format!("./comp_posts/{}", &dir_name))
+        .spawn()
+        .expect("failed to compile");
+    let _result1 = child1.wait().unwrap();
+
+    let mut child = Command::new("pandoc")
+        .arg("-f")
+        .arg("latex")
+        .arg("-t")
+        .arg("html")
+        .arg(format!("./drafts/{}", name))
+        .output()
+        .expect("failed to compile");
+    //    let result = child.wait().unwrap();
+    let mut out = String::new();
+    out.push_str(match str::from_utf8(&child.stdout) {
+        Ok(val) => val,
+        Err(_) => panic!("got non UTF-8 data from git"),
+    });
+
+    fs::write(format!("./comp_posts/{}/index.html", &dir_name), out);
+
+    build_handler(name);
 }
 
 fn to_html(name: String) {
@@ -182,7 +220,7 @@ fn main() {
         .collect::<Vec<String>>();
 
     for draft in posts {
-        to_html(draft);
+        to_html_pd(draft);
     }
 
     write_index()

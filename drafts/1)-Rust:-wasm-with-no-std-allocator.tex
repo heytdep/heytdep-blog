@@ -12,9 +12,8 @@ breaklines=true
 \begin{document}
 \maketitle
 
-\abstract{
+\section{Introduction}
 This small article shows how to fix errors when building to WASM functions that are allocating, without using Rust's standard library.
-}
 
 \section{The Error \& Solution}
 
@@ -28,7 +27,7 @@ error: `#[alloc_error_handler]` function required, but not found.
 
 Rather than finding a workaround for our allocations, we can easily use the \texttt{wee allocator} after adding it to our library's dependencies (\texttt{wee_alloc = "0.4.5"}):
 
-\begin{verbatim}
+\begin{lstlisting}[rust]
   extern crate wee_alloc;
   ...
   use core::instrinsics;
@@ -43,7 +42,7 @@ Rather than finding a workaround for our allocations, we can easily use the \tex
       intrinsics::abort();
     }
   }
-\end{verbatim}
+\end{lstlisting}
 
 And that's it!
 
