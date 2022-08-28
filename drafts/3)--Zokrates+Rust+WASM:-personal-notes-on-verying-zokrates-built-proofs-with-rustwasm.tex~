@@ -1,0 +1,21 @@
+\documentclass{article}
+\usepackage{listings, listings-rust}
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\title{Groth16 proof verification from scratch in Rust}
+\date{28/08/2022}
+
+\begin{document}
+\maketitle
+
+\texttt{29 aug 2022}
+
+\section{Introduction}
+
+Personal notes on writing a Rust verifier for zokrates-generated veryifing key and proof, depending on my \lstinline{ark-groth16} fork. The fork is designed to target WebAssembly, effectively making it easily cross-platform without issues, furthermore it leverages the amazing work from the people at arkworks and isn't depentent on Rust's standard library.
+
+\end{document}

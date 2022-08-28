@@ -1,0 +1,31 @@
+\documentclass{article}
+\usepackage{listings, listings-rust}
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
+
+\title{Zokrates+Rust+WASM}
+\date{29/08/2022}
+
+\begin{document}
+\maketitle
+
+\texttt{29 aug 2022}
+
+\section{Introduction}
+
+Personal notes on writing a Rust verifier for zokrates-generated veryifing key and proof, depending on my \lstinline{ark-groth16} fork. The fork is designed to target WebAssembly, effectively making it easily cross-platform without issues, furthermore it leverages the amazing work from the people at arkworks and isn't depentent on Rust's standard library.
+
+\section{Workflow}
+\lstlisting{arg-groth16}'s \lstlisting{verify\_proof/3} function accepts three parameters: a \lstlisting{PreparedVerifyingKey} struct, the proof and the public inputs (these two have a familiar look).
+
+The function seems to only accept the public inputs in a raw format, while the verifying key must be prepared before through the \lstlisting{prepare\_verifying\_key/1} function, which accepts a \lstlisting{VerifyingKey} struct, which has a familiar look (to the one built by zokrates).
+
+It's also worth noting that arkworks doesn't seem to have implemented the \lstlisting{alt\_bn128} curve, probably also because it doesn't \href{https://moderncrypto.org/mail-archive/curves/2016/000740.html}{actually} target 128bit security.
+
+\section{Possible Approach}
+Firstly, one should remember to compile the \lstlisting{zok} code with the \lstlisting{--curve bls12\_377} or \lstlisting{--curve bls12\_381}. Secondly, convert zokrates' output from hexadecimal to decimal numbers.
+
+\end{document}
