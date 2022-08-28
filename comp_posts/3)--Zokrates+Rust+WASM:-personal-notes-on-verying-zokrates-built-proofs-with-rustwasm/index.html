@@ -7,17 +7,161 @@ cross-platform without issues, furthermore it leverages the amazing work
 from the people at arkworks and isn’t depentent on Rust’s standard
 library.</p>
 <h1 id="workflow">Workflow</h1>
-<p>’s function accepts three parameters: a struct, the proof and the
-public inputs (these two have a familiar look).</p>
+<p><code>arg-groth16</code>’s <code>verify_proof/3</code> function
+accepts three parameters: a <code>PreparedVerifyingKey</code> struct,
+the proof and the public inputs (these two have a familiar look).</p>
 <p>The function seems to only accept the public inputs in a raw format,
-while the verifying key must be prepared before through the function,
-which accepts a struct, which has a familiar look (to the one built by
-zokrates).</p>
+while the verifying key must be prepared before through the
+<code>prepare_verifying_key/1</code> function, which accepts a
+<code>VerifyingKey</code> struct, which has a familiar look (to the one
+built by zokrates).</p>
 <p>It’s also worth noting that arkworks doesn’t seem to have implemented
-the curve, probably also because it doesn’t <a
+the <code>alt_bn128</code> curve, probably also because it doesn’t <a
 href="https://moderncrypto.org/mail-archive/curves/2016/000740.html">actually</a>
 target 128bit security.</p>
 <h1 id="possible-approach">Possible Approach</h1>
-<p>Firstly, one should remember to compile the code with the or .
-Secondly, convert zokrates’ output from hexadecimal to decimal
-numbers.</p>
+<p>Firstly, one should remember to compile the <code>zok</code> code
+with the <code>--curve bls12_377</code> or
+<code>--curve bls12_381</code>. Secondly, convert zokrates’ output from
+hexadecimal to decimal numbers.</p>
+<h2 id="building-required-structs">Building required structs</h2>
+<h3 id="context">context</h3>
+<pre data-rust=""><code>pub struct Proof&lt;E: PairingEngine&gt; {
+    /// The `A` element in `G1`.
+    pub a: E::G1Affine,
+    /// The `B` element in `G2`.
+    pub b: E::G2Affine,
+    /// The `C` element in `G1`.
+    pub c: E::G1Affine,
+  }
+
+  pub struct VerifyingKey&lt;E: PairingEngine&gt; {
+    /// The `alpha * G`, where `G` is the generator of `E::G1`.
+    pub alpha_g1: E::G1Affine,
+    /// The `alpha * H`, where `H` is the generator of `E::G2`.
+    pub beta_g2: E::G2Affine,
+    /// The `gamma * H`, where `H` is the generator of `E::G2`.
+    pub gamma_g2: E::G2Affine,
+    /// The `delta * H`, where `H` is the generator of `E::G2`.
+    pub delta_g2: E::G2Affine,
+    /// The `gamma^{-1} * (beta * a_i + alpha * b_i + c_i) * H`, where `H` is the generator of `E::G1`.
+    pub gamma_abc_g1: Vec&lt;E::G1Affine&gt;,
+  }
+
+  pub struct PreparedVerifyingKey&lt;E: PairingEngine&gt; {
+    /// The unprepared verification key.
+    pub vk: VerifyingKey&lt;E&gt;,
+    /// The element `e(alpha * G, beta * H)` in `E::GT`.
+    pub alpha_g1_beta_g2: E::Fqk,
+    /// The element `- gamma * H` in `E::G2`, prepared for use in pairings.
+    pub gamma_g2_neg_pc: E::G2Prepared,
+    /// The element `- delta * H` in `E::G2`, prepared for use in pairings.
+    pub delta_g2_neg_pc: E::G2Prepared,
+  }
+  
+  ...
+  
+  pub fn verify_proof&lt;E: PairingEngine&gt;(
+    pvk: &amp;PreparedVerifyingKey&lt;E&gt;,
+    proof: &amp;Proof&lt;E&gt;,
+    public_inputs: &amp;[E::Fr],
+  ) -&gt; R1CSResult&lt;bool&gt; {
+    let prepared_inputs = prepare_inputs(pvk, public_inputs)?;
+    verify_proof_with_prepared_inputs(pvk, proof, &amp;prepared_inputs)
+  }
+</code></pre>
+<p>Where a <code>G1Affine</code> type looks like this:</p>
+<pre><code>    GroupAffine {
+        x: Fp384(
+            BigInteger384(
+                [
+                    3199796192684432232,
+                    4362044476736311684,
+                    8571585415345326572,
+                    272761253199814039,
+                    14270748742047465361,
+                    66582167681461772,
+                ],
+            ),
+        ),
+        y: Fp384(
+            BigInteger384(
+                [
+                    17201133494176990532,
+                    17361089997485303489,
+                    2356170384171249648,
+                    15902542869977172799,
+                    4538038237916000288,
+                    111600171191049399,
+                ],
+            ),
+        ),
+        infinity: false,
+    },
+</code></pre>
+<p>And a <code>G2Affine</code> looks like this:</p>
+<pre><code>    GroupAffine {
+        x: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        15665539495786463071,
+                        5351637199640705349,
+                        5481305661085202947,
+                        7252742268448139825,
+                        14247290886710085473,
+                        8228118271073905,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        8494150025713109519,
+                        10006396386444051476,
+                        13426536016117885356,
+                        14412411855199552289,
+                        6775472512520061513,
+                        74820872700629732,
+                    ],
+                ),
+            ),
+        },
+        y: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        15935296043123816371,
+                        16352348468216685567,
+                        18366972020740145783,
+                        466661810096455046,
+                        2878395169732749912,
+                        8930570229618427,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        5497740038271589360,
+                        17915564786368593018,
+                        6498524887710276130,
+                        8426407821033307682,
+                        16967503410483070288,
+                        87176449986178953,
+                    ],
+                ),
+            ),
+        },
+        infinity: false,
+    },
+</code></pre>
+<p><strong>Note</strong>: the <code>BigInteger384</code> type seems to
+hold the actual number as an array of smaller numbers (similar to what’s
+being done with Soroban’s u256 integers). In fact, an array exacly
+corresponds to a zokrates generated one (after being converted to
+decimal).</p>
+<p><strong>Note</strong>: the length of the numbers in
+<code>BigInteger384</code>’s array varies between 17 and 20, I should do
+some digging in why is that and if it affects the actual
+computation.</p>

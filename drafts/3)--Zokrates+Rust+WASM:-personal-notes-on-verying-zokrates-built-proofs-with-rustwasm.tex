@@ -1,9 +1,13 @@
 \documentclass{article}
 \usepackage{listings, listings-rust}
-\lstset{
-basicstyle=\small\ttfamily,
-columns=flexible,
-breaklines=true
+
+\usepackage{color}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}  
+\lstset{  
+tabsize=4,  
+basicstyle=\ttfamily,  
+backgroundcolor=\color{lbcolor},  
+showstringspaces=false  
 }
 
 \title{Zokrates+Rust+WASM}
@@ -19,13 +23,161 @@ breaklines=true
 Personal notes on writing a Rust verifier for zokrates-generated veryifing key and proof, depending on my \lstinline{ark-groth16} fork. The fork is designed to target WebAssembly, effectively making it easily cross-platform without issues, furthermore it leverages the amazing work from the people at arkworks and isn't depentent on Rust's standard library.
 
 \section{Workflow}
-\lstlisting{arg-groth16}'s \lstlisting{verify\_proof/3} function accepts three parameters: a \lstlisting{PreparedVerifyingKey} struct, the proof and the public inputs (these two have a familiar look).
+\lstinline{arg-groth16}'s \lstinline{verify_proof/3} function accepts three parameters: a \lstinline{PreparedVerifyingKey} struct, the proof and the public inputs (these two have a familiar look).
 
-The function seems to only accept the public inputs in a raw format, while the verifying key must be prepared before through the \lstlisting{prepare\_verifying\_key/1} function, which accepts a \lstlisting{VerifyingKey} struct, which has a familiar look (to the one built by zokrates).
+The function seems to only accept the public inputs in a raw format, while the verifying key must be prepared before through the \lstinline{prepare_verifying_key/1} function, which accepts a \lstinline{VerifyingKey} struct, which has a familiar look (to the one built by zokrates).
 
-It's also worth noting that arkworks doesn't seem to have implemented the \lstlisting{alt\_bn128} curve, probably also because it doesn't \href{https://moderncrypto.org/mail-archive/curves/2016/000740.html}{actually} target 128bit security.
+It's also worth noting that arkworks doesn't seem to have implemented the \lstinline{alt_bn128} curve, probably also because it doesn't \href{https://moderncrypto.org/mail-archive/curves/2016/000740.html}{actually} target 128bit security.
 
 \section{Possible Approach}
-Firstly, one should remember to compile the \lstlisting{zok} code with the \lstlisting{--curve bls12\_377} or \lstlisting{--curve bls12\_381}. Secondly, convert zokrates' output from hexadecimal to decimal numbers.
+Firstly, one should remember to compile the \lstinline{zok} code with the \lstinline{--curve bls12_377} or \lstinline{--curve bls12_381}. Secondly, convert zokrates' output from hexadecimal to decimal numbers.
+
+\subsection{Building required structs}
+
+\subsubsection{context}
+\begin{lstlisting}[rust]
+  pub struct Proof<E: PairingEngine> {
+    /// The `A` element in `G1`.
+    pub a: E::G1Affine,
+    /// The `B` element in `G2`.
+    pub b: E::G2Affine,
+    /// The `C` element in `G1`.
+    pub c: E::G1Affine,
+  }
+
+  pub struct VerifyingKey<E: PairingEngine> {
+    /// The `alpha * G`, where `G` is the generator of `E::G1`.
+    pub alpha_g1: E::G1Affine,
+    /// The `alpha * H`, where `H` is the generator of `E::G2`.
+    pub beta_g2: E::G2Affine,
+    /// The `gamma * H`, where `H` is the generator of `E::G2`.
+    pub gamma_g2: E::G2Affine,
+    /// The `delta * H`, where `H` is the generator of `E::G2`.
+    pub delta_g2: E::G2Affine,
+    /// The `gamma^{-1} * (beta * a_i + alpha * b_i + c_i) * H`, where `H` is the generator of `E::G1`.
+    pub gamma_abc_g1: Vec<E::G1Affine>,
+  }
+
+  pub struct PreparedVerifyingKey<E: PairingEngine> {
+    /// The unprepared verification key.
+    pub vk: VerifyingKey<E>,
+    /// The element `e(alpha * G, beta * H)` in `E::GT`.
+    pub alpha_g1_beta_g2: E::Fqk,
+    /// The element `- gamma * H` in `E::G2`, prepared for use in pairings.
+    pub gamma_g2_neg_pc: E::G2Prepared,
+    /// The element `- delta * H` in `E::G2`, prepared for use in pairings.
+    pub delta_g2_neg_pc: E::G2Prepared,
+  }
+  
+  ...
+  
+  pub fn verify_proof<E: PairingEngine>(
+    pvk: &PreparedVerifyingKey<E>,
+    proof: &Proof<E>,
+    public_inputs: &[E::Fr],
+  ) -> R1CSResult<bool> {
+    let prepared_inputs = prepare_inputs(pvk, public_inputs)?;
+    verify_proof_with_prepared_inputs(pvk, proof, &prepared_inputs)
+  }
+
+\end{lstlisting}
+
+Where a \lstinline{G1Affine} type looks like this:
+
+\begin{lstlisting}
+    GroupAffine {
+        x: Fp384(
+            BigInteger384(
+                [
+                    3199796192684432232,
+                    4362044476736311684,
+                    8571585415345326572,
+                    272761253199814039,
+                    14270748742047465361,
+                    66582167681461772,
+                ],
+            ),
+        ),
+        y: Fp384(
+            BigInteger384(
+                [
+                    17201133494176990532,
+                    17361089997485303489,
+                    2356170384171249648,
+                    15902542869977172799,
+                    4538038237916000288,
+                    111600171191049399,
+                ],
+            ),
+        ),
+        infinity: false,
+    },
+
+\end{lstlisting}
+
+And a \lstinline{G2Affine} looks like this:
+
+\begin{lstlisting}
+    GroupAffine {
+        x: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        15665539495786463071,
+                        5351637199640705349,
+                        5481305661085202947,
+                        7252742268448139825,
+                        14247290886710085473,
+                        8228118271073905,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        8494150025713109519,
+                        10006396386444051476,
+                        13426536016117885356,
+                        14412411855199552289,
+                        6775472512520061513,
+                        74820872700629732,
+                    ],
+                ),
+            ),
+        },
+        y: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        15935296043123816371,
+                        16352348468216685567,
+                        18366972020740145783,
+                        466661810096455046,
+                        2878395169732749912,
+                        8930570229618427,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        5497740038271589360,
+                        17915564786368593018,
+                        6498524887710276130,
+                        8426407821033307682,
+                        16967503410483070288,
+                        87176449986178953,
+                    ],
+                ),
+            ),
+        },
+        infinity: false,
+    },
+
+\end{lstlisting}
+
+\textbf{Note}: the \lstinline{BigInteger384} type seems to hold the actual number as an array of smaller numbers (similar to what's being done with Soroban's u256 integers). In fact, an array exacly corresponds to a zokrates generated one (after being converted to decimal).
+
+\textbf{Note}: the length of the numbers in \lstinline{BigInteger384}'s array varies between 17 and 20, I should do some digging in why is that and if it affects the actual computation.
 
 \end{document}

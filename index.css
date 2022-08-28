@@ -134,6 +134,12 @@ pre {
     overflow-x: auto;
 }
 
+code {
+    background-color: #F3F3F3;
+    padding: 2px;
+    border-radius: 5px
+}
+
 /*
   Typography & doc elements
 */
