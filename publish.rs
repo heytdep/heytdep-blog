@@ -32,17 +32,26 @@ fn preemptive_remove() {
 fn build_handler(name: String) {
     let splitted: &Vec<&str> = &name.split(".").collect();
     let dir_name = splitted[0];
+    let post_name_split: &Vec<&str> = &dir_name.split(")--").collect();
     let mut parent = format!(
         r#"
 <!DOCTYPE html>
 <html class="">
 <head>
 <link href="../../index.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/languages/rust.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/languages/python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/languages/bash.min.js"></script>
 <script>
 fetch("./index.html").then(resp => resp.text().then(content => {{
     const post = document.createElement("div");
     post.innerHTML =content;
     document.getElementById("post").appendChild(post);
+    hljs.highlightAll();
 }}));
 /*
 function resizeIframe(obj) {{
@@ -56,9 +65,9 @@ function resizeIframe(obj) {{
 </script>
 </head>
 <body>
-<h1><a href="/">tdep's blog</a></h1>
 <div id="post">
-
+<h4><a href="/">see all posts</a></h1>
+<h1 class="title">{}</h1>
 <!--<iframe src="./index.html" frameborder="0" scrolling="no" width="100%" onload="resizeIframe(this)" />-->
 </div>
      <script>
@@ -77,7 +86,8 @@ document.body.appendChild(post);
 </script>
 </body>
 </html>
-"#
+"#,
+        post_name_split[1].replace("-", " ")
     );
 
     let mut file = File::create(format!("./comp_posts/{}/post.html", &dir_name)).unwrap();
@@ -148,8 +158,9 @@ fn gen_index_content(posts: Vec<String>) -> String {
     );
 
     let mut li_list = String::new();
-
-    for post in posts {
+    let rev_posts: Vec<String> = posts.into_iter().rev().collect();
+    for post in rev_posts {
+        let post_name_split: &Vec<&str> = &post.split(")--").collect();
         li_list.push_str(&format!(
             r#"
 <li>
@@ -157,7 +168,7 @@ fn gen_index_content(posts: Vec<String>) -> String {
 </li>
 "#,
             &post,
-            &post.replace("-", " ")
+            &post_name_split[1].replace("-", " ")
         ))
     }
 
@@ -166,10 +177,11 @@ fn gen_index_content(posts: Vec<String>) -> String {
 <body>
 <div id="content">
 <div class="heading">
-<h1>tdep's website</h1>
+<h1 class="title">tdep's website</h1>
 <hr/>
 <div class="description">
 <p>This is my secondary blog, where I write about everyday code challenges, cryptography, smart contracts, and everything that is of a more intermediate/advanced level that doesn't have much traction on <a target="_blank" href="https://tdep.medium.com/">my Medium primary blog</a>.</p>
+<p>I built this blog myself starting from a Rust script, which converts LaTeX to blog posts and organizes the webpage's directory. To learn more about my blog read <a href="/comp_posts/0)--How-I-built-this-blog/post.html">this post</a>.</p>
 </div>
 <div id="icons">
     <ul>
@@ -201,9 +213,9 @@ fn write_index() {
             })
         })
         .collect::<Vec<String>>();
-    println!("{:?}", posts);
     let content = gen_index_content(posts);
     fs::write("./index.html", content);
+    println!("[+] Successfully built posts");
 }
 
 fn main() {
