@@ -64,6 +64,8 @@ h1 {
 html, body {
   background-color: var(--color-bg);
   color: var(--color-text);
+  max-width: 900px;
+  margin: auto;
 }
 
 #icons ul li {
@@ -91,9 +93,14 @@ ul {
   background: #555; 
 }
 
+.math {
+    font-size: 20px;
+}
+
 #post {
     width: 90%;
     margin: auto;
+    padding-bottom: 4em;
 }
 
 #content {
@@ -106,6 +113,10 @@ ul {
     margin-top: 8em;
     text-align: center;
     padding-bottom: 20px;
+}
+
+#post h4 {
+    margin-top: 8em;
 }
 
 .heading h1 {    

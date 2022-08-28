@@ -143,7 +143,7 @@ fn to_html(name: String) {
     build_handler(name);
 }
 
-fn gen_index_content(posts: Vec<String>) -> String {
+fn gen_index_content(mut posts: Vec<String>) -> String {
     let mut head = String::from(
         r#"<!DOCTYPE html>
 <html class="">
@@ -158,7 +158,9 @@ fn gen_index_content(posts: Vec<String>) -> String {
     );
 
     let mut li_list = String::new();
+    posts.sort();
     let rev_posts: Vec<String> = posts.into_iter().rev().collect();
+
     for post in rev_posts {
         let post_name_split: &Vec<&str> = &post.split(")--").collect();
         li_list.push_str(&format!(
@@ -180,8 +182,9 @@ fn gen_index_content(posts: Vec<String>) -> String {
 <h1 class="title">tdep's website</h1>
 <hr/>
 <div class="description">
-<p>This is my secondary blog, where I write about everyday code challenges, cryptography, smart contracts, and everything that is of a more intermediate/advanced level that doesn't have much traction on <a target="_blank" href="https://tdep.medium.com/">my Medium primary blog</a>.</p>
+<p>This is my secondary blog and the place for personal notes, where I write about everyday code challenges, cryptography, smart contracts, and everything that is of a more intermediate/advanced level that doesn't have much traction on <a target="_blank" href="https://tdep.medium.com/">my Medium primary blog</a>.</p>
 <p>I built this blog myself starting from a Rust script, which converts LaTeX to blog posts and organizes the webpage's directory. To learn more about my blog read <a href="/comp_posts/0)--How-I-built-this-blog/post.html">this post</a>.</p>
+<p>The content on this website is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
 </div>
 <div id="icons">
     <ul>
