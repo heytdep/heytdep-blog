@@ -9,6 +9,7 @@ basicstyle=\ttfamily,
 backgroundcolor=\color{lbcolor},  
 showstringspaces=false  
 }
+\newcommand{\inl}[1]{\lstinline{#1}}
 
 \title{Zokrates+Rust+WASM}
 \date{29/08/2022}
@@ -179,5 +180,13 @@ And a \lstinline{G2Affine} looks like this:
 \textbf{Note}: the \lstinline{BigInteger384} type seems to hold the actual number as an array of smaller numbers (similar to what's being done with Soroban's u256 integers). In fact, an array exacly corresponds to a zokrates generated one (after being converted to decimal).
 
 \textbf{Note}: the length of the numbers in \lstinline{BigInteger384}'s array varies between 17 and 20, I should do some digging in why is that and if it affects the actual computation.
+
+
+\section{Allocator complains \& Optimizing non-reuired functions}
+Since some WASM VMs don't provide allocation for additional resources, I have traced the source of the allocation, which seems to be the \lstinline{hashbrown} crate. This crate is needed for the \lstinline{ark-poly} crate, which however we don't need since it's only used for the \lstinline{circuit_specific_setup()} and \lstinline{prove()} functions, which have nothing to do with our verifying function. I cannot however infer with the Trait since it's imported from the imported primitives crate. One solution would be to fork both \inl{ark-snark} and \inl{ark-crypto-primitives}, and change the trait to not have those two funcitons. It also seems that we don't need the implementation of \inl{SNARK} for \inl{Groth16} at all.
+
+
+\section{Projective representation}
+Projective representations appears to be the key to porting numbers to the affine representation without iplementing the transformation myself. The \inl{E::G1Projective} and \inl{E::G2Projective} implement the \inl{self.into_affine()} method thorugh inheritance.
 
 \end{document}

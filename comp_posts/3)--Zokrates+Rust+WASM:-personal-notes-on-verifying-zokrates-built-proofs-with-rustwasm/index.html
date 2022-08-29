@@ -165,3 +165,23 @@ decimal).</p>
 <code>BigInteger384</code>’s array varies between 17 and 20, I should do
 some digging in why is that and if it affects the actual
 computation.</p>
+<h1 id="allocator-complains-optimizing-non-reuired-functions">Allocator
+complains &amp; Optimizing non-reuired functions</h1>
+<p>Since some WASM VMs don’t provide allocation for additional
+resources, I have traced the source of the allocation, which seems to be
+the <code>hashbrown</code> crate. This crate is needed for the
+<code>ark-poly</code> crate, which however we don’t need since it’s only
+used for the <code>circuit_specific_setup()</code> and
+<code>prove()</code> functions, which have nothing to do with our
+verifying function. I cannot however infer with the Trait since it’s
+imported from the imported primitives crate. One solution would be to
+fork both <code>ark-snark</code> and <code>ark-crypto-primitives</code>,
+and change the trait to not have those two funcitons. It also seems that
+we don’t need the implementation of <code>SNARK</code> for
+<code>Groth16</code> at all.</p>
+<h1 id="projective-representation">Projective representation</h1>
+<p>Projective representations appears to be the key to porting numbers
+to the affine representation without iplementing the transformation
+myself. The <code>E::G1Projective</code> and
+<code>E::G2Projective</code> implement the
+<code>self.into_affine()</code> method thorugh inheritance.</p>
