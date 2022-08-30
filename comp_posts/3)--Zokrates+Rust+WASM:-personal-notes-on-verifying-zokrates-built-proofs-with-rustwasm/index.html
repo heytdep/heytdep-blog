@@ -198,3 +198,25 @@ class="math inline"><em>L̄</em></span> for me.</p>
 <p>The verifying key is made up of <code>Fp384</code> types, which we
 can construct like this:</p>
 <pre><code>    let numm: Fp384&lt;FqParameters&gt; = Fp384::from_random_bytes(&amp;1u8.to_ne_bytes()).unwrap();</code></pre>
+<p>Even better, we can construct a <code>G1Affine</code> directly from
+the <code>Fp384</code> numbers:</p>
+<pre><code>  fn af&lt;E&gt;(x: &amp;[u8], y: &amp;[u8]) -&gt; G1Affine
+  where
+  E: PairingEngine,
+  {
+    G1Affine::new(
+    Fp384::from_random_bytes(x).unwrap(),
+    Fp384::from_random_bytes(y).unwrap(),
+    false,
+    )
+  }</code></pre>
+<h2 id="final-verifying-key-approach">Final verifying key approach</h2>
+<p>So this might be the final approach:</p>
+<ol>
+<li><p>get <span
+class="math inline"><em>α</em> <em>β</em> <em>γ</em> <em>δ</em> <em>γ</em><sub><em>a</em><em>b</em><em>c</em></sub></span>
+ as bytes.</p></li>
+<li><p>build the Affine for those</p></li>
+<li><p>use the <code>G1Affine</code> and <code>G2Affine</code> to build
+the verifying key.</p></li>
+</ol>

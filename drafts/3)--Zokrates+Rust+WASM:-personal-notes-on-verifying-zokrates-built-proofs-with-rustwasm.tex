@@ -212,4 +212,29 @@ The verifying key is made up of \inl{Fp384} types, which we can construct like t
     let numm: Fp384<FqParameters> = Fp384::from_random_bytes(&1u8.to_ne_bytes()).unwrap();
 \end{lstlisting}
 
+Even better, we can construct a \inl{G1Affine} directly from the \inl{Fp384} numbers:
+
+\begin{lstlisting}
+  fn af<E>(x: &[u8], y: &[u8]) -> G1Affine
+  where
+  E: PairingEngine,
+  {
+    G1Affine::new(
+    Fp384::from_random_bytes(x).unwrap(),
+    Fp384::from_random_bytes(y).unwrap(),
+    false,
+    )
+  }
+\end{lstlisting}
+
+
+\subsection{Final verifying key approach}
+So this might be the final approach:
+
+\begin{enumerate}
+\item get \( \alpha \ \beta \ \gamma \ \delta \ \gamma_{abc} \) \ as bytes.
+\item build the Affine for those
+\item use the \inl{G1Affine} and \inl{G2Affine} to build the verifying key.
+\end{enumerate}
+
 \end{document}
