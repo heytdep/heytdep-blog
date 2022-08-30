@@ -237,4 +237,132 @@ So this might be the final approach:
 \item use the \inl{G1Affine} and \inl{G2Affine} to build the verifying key.
 \end{enumerate}
 
+\subsubsection{Building a G1Affine}
+\begin{lstlisting}
+  fn af_g1<E>(x: &[u8], y: &[u8]) -> G1Affine
+  where
+  E: PairingEngine,
+  {
+    G1Affine::new(
+    Fp384::from_random_bytes(x).unwrap(),
+    Fp384::from_random_bytes(y).unwrap(),
+    false,
+    )
+  }
+\end{lstlisting}
+
+\subsubsection{Building G2Affine}
+\begin{lstlisting}
+  fn af_g2<E>(c0_x0: &[u8], c1_y0: &[u8], c0_x1: &[u8], c1_y1: &[u8]) -> G2Affine
+  where
+  E: PairingEngine,
+  {
+    let x = QuadExtField::new(
+    Fp384::from_random_bytes(c0_x0).unwrap(),
+    Fp384::from_random_bytes(c1_y0).unwrap(),
+    );
+    let y = QuadExtField::new(
+    Fp384::from_random_bytes(c0_x1).unwrap(),
+    Fp384::from_random_bytes(c1_y1).unwrap(),
+    );
+
+    G2Affine::new(x, y, false)
+  }
+\end{lstlisting}
+
+\subsubsection{Building the verifying key test}
+Not yet completed, but seems to work correctly:
+
+\begin{lstlisting}
+  /// building a verifying key from provided bytes
+  pub fn build_vk<E>(
+  alpha_b: [&[u8]; 2],
+  beta_b: ([&[u8]; 2], [&[u8]; 2]),
+  //    gamma_b: ([&[u8]; 2], [&[u8]; 2]),
+  //    delta_b: ([&[u8]; 2], [&[u8]; 2]),
+  //    gamma_abc_b: Vec<[&[u8]; 2]>,
+  //) -> VerifyingKey<E>
+  ) where
+  E: PairingEngine,
+  {
+    let alpha = af_g1::<E>(alpha_b[0], alpha_b[1]);
+    let beta = af_g2::<E>(beta_b.0[0], beta_b.0[1], beta_b.1[0], beta_b.1[1]);
+    println!("{:#?}", beta);
+  }
+
+  #[test]
+  fn test() {
+    build_vk::<Bls12_377>(
+    [&0u8.to_be_bytes(), &0u8.to_be_bytes()],
+    (
+    [&0u8.to_be_bytes(), &0u8.to_be_bytes()],
+    [&0u8.to_be_bytes(), &0u8.to_be_bytes()],
+    ),
+    )
+  }
+
+  ... TEST ...
+  
+
+  running 1 test
+  GroupAffine {
+    x: QuadExtField {
+      c0: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+      c1: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+    },
+    y: QuadExtField {
+      c0: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+      c1: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+    },
+    infinity: false,
+  }
+  test verifying_key_wrap::test ... ok
+
+
+\end{lstlisting}
+
 \end{document}

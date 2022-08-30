@@ -220,3 +220,122 @@ class="math inline"><em>α</em> <em>β</em> <em>γ</em> <em>δ</em> <em>γ</
 <li><p>use the <code>G1Affine</code> and <code>G2Affine</code> to build
 the verifying key.</p></li>
 </ol>
+<h3 id="building-a-g1affine">Building a G1Affine</h3>
+<pre><code>  fn af_g1&lt;E&gt;(x: &amp;[u8], y: &amp;[u8]) -&gt; G1Affine
+  where
+  E: PairingEngine,
+  {
+    G1Affine::new(
+    Fp384::from_random_bytes(x).unwrap(),
+    Fp384::from_random_bytes(y).unwrap(),
+    false,
+    )
+  }</code></pre>
+<h3 id="building-g2affine">Building G2Affine</h3>
+<pre><code>  fn af_g2&lt;E&gt;(c0_x0: &amp;[u8], c1_y0: &amp;[u8], c0_x1: &amp;[u8], c1_y1: &amp;[u8]) -&gt; G2Affine
+  where
+  E: PairingEngine,
+  {
+    let x = QuadExtField::new(
+    Fp384::from_random_bytes(c0_x0).unwrap(),
+    Fp384::from_random_bytes(c1_y0).unwrap(),
+    );
+    let y = QuadExtField::new(
+    Fp384::from_random_bytes(c0_x1).unwrap(),
+    Fp384::from_random_bytes(c1_y1).unwrap(),
+    );
+
+    G2Affine::new(x, y, false)
+  }</code></pre>
+<h3 id="building-the-verifying-key-test">Building the verifying key
+test</h3>
+<p>Not yet completed, but seems to work correctly:</p>
+<pre><code>  /// building a verifying key from provided bytes
+  pub fn build_vk&lt;E&gt;(
+  alpha_b: [&amp;[u8]; 2],
+  beta_b: ([&amp;[u8]; 2], [&amp;[u8]; 2]),
+  //    gamma_b: ([&amp;[u8]; 2], [&amp;[u8]; 2]),
+  //    delta_b: ([&amp;[u8]; 2], [&amp;[u8]; 2]),
+  //    gamma_abc_b: Vec&lt;[&amp;[u8]; 2]&gt;,
+  //) -&gt; VerifyingKey&lt;E&gt;
+  ) where
+  E: PairingEngine,
+  {
+    let alpha = af_g1::&lt;E&gt;(alpha_b[0], alpha_b[1]);
+    let beta = af_g2::&lt;E&gt;(beta_b.0[0], beta_b.0[1], beta_b.1[0], beta_b.1[1]);
+    println!(&quot;{:#?}&quot;, beta);
+  }
+
+  #[test]
+  fn test() {
+    build_vk::&lt;Bls12_377&gt;(
+    [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+    (
+    [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+    [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+    ),
+    )
+  }
+
+  ... TEST ...
+  
+
+  running 1 test
+  GroupAffine {
+    x: QuadExtField {
+      c0: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+      c1: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+    },
+    y: QuadExtField {
+      c0: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+      c1: Fp384(
+      BigInteger384(
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      ],
+      ),
+      ),
+    },
+    infinity: false,
+  }
+  test verifying_key_wrap::test ... ok
+
+</code></pre>
