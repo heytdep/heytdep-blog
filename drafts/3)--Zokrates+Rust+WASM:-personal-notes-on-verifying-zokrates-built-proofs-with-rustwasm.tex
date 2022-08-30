@@ -206,4 +206,10 @@ Where \inl{Fp256} is the same of the public inputs, which are aggregated startin
 
 So I can build the key and then the \inl{prepare_inputs()} aggregates the public inputs to \( \bar{L} \) for me.
 
+The verifying key is made up of \inl{Fp384} types, which we can construct like this:
+
+\begin{lstlisting}
+    let numm: Fp384<FqParameters> = Fp384::from_random_bytes(&1u8.to_ne_bytes()).unwrap();
+\end{lstlisting}
+
 \end{document}

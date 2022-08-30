@@ -195,3 +195,6 @@ aggregated starting from the verifying key’s <code>gamma_abc</code>.</p>
 <p>So I can build the key and then the <code>prepare_inputs()</code>
 aggregates the public inputs to <span
 class="math inline"><em>L̄</em></span> for me.</p>
+<p>The verifying key is made up of <code>Fp384</code> types, which we
+can construct like this:</p>
+<pre><code>    let numm: Fp384&lt;FqParameters&gt; = Fp384::from_random_bytes(&amp;1u8.to_ne_bytes()).unwrap();</code></pre>
