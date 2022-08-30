@@ -185,3 +185,13 @@ to the affine representation without iplementing the transformation
 myself. The <code>E::G1Projective</code> and
 <code>E::G2Projective</code> implement the
 <code>self.into_affine()</code> method thorugh inheritance.</p>
+<p>Since I can create a field starting from an array of bytes that
+represent a number:</p>
+<pre><code>  let tst_bi: Fr = Field::from_random_bytes(&amp;10u8.to_ne_bytes()).unwrap();</code></pre>
+<p>And this results in the following representation:</p>
+<pre><code>Fp256(BigInteger256([11286724353632239479, 271994586681835377, 4576425507946680135, 164029952815760582]))</code></pre>
+<p>Where <code>Fp256</code> is the same of the public inputs, which are
+aggregated starting from the verifying key’s <code>gamma_abc</code>.</p>
+<p>So I can build the key and then the <code>prepare_inputs()</code>
+aggregates the public inputs to <span
+class="math inline"><em>L̄</em></span> for me.</p>
