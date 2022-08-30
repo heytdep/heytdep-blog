@@ -339,3 +339,298 @@ test</h3>
   test verifying_key_wrap::test ... ok
 
 </code></pre>
+<h2
+id="building-a-verifying-key-using-bls12_377-as-pairing-engine">Building
+a Verifying Key using BLS12_377 as pairing engine</h2>
+<p>This is how to successfully build a verifying key starting from an
+array of bytes using the BLS12_377 curve:</p>
+<pre><code>
+/// building a verifying key from provided bytes
+pub fn build_vk&lt;E&gt;(
+    alpha_b: [&amp;[u8]; 2],
+    beta_b: ([&amp;[u8]; 2], [&amp;[u8]; 2]),
+    gamma_b: ([&amp;[u8]; 2], [&amp;[u8]; 2]),
+    delta_b: ([&amp;[u8]; 2], [&amp;[u8]; 2]),
+    gamma_abc_b: &amp;[[&amp;[u8]; 2]],
+    //) -&gt; VerifyingKey&lt;E&gt;
+) where
+    E: PairingEngine,
+{
+    let alpha = af_g1::&lt;E&gt;(alpha_b[0], alpha_b[1]);
+    let beta = af_g2::&lt;E&gt;(beta_b.0[0], beta_b.0[1], beta_b.1[0], beta_b.1[1]);
+    let gamma = af_g2::&lt;E&gt;(gamma_b.0[0], gamma_b.0[1], gamma_b.1[0], gamma_b.1[1]);
+    let delta = af_g2::&lt;E&gt;(delta_b.0[0], delta_b.0[1], delta_b.1[0], delta_b.1[1]);
+
+    let mut gamma_abc: Vec&lt;GroupProjective&lt;Parameters&gt;&gt; = Vec::new();
+    for g in gamma_abc_b {
+        gamma_abc.push(af_g1::&lt;E&gt;(g[0], g[1]).into_projective());
+    }
+
+    let vk = VerifyingKey::&lt;Bls12_377&gt; {
+        alpha_g1: alpha,
+        beta_g2: beta,
+        gamma_g2: gamma,
+        delta_g2: delta,
+        gamma_abc_g1: &lt;Bls12_377 as PairingEngine&gt;::G1Projective::batch_normalization_into_affine(
+            gamma_abc.as_slice(),
+        ),
+    };
+
+    println!(&quot;{:#?}&quot;, vk);
+}
+
+#[test]
+fn test() {
+    build_vk::&lt;Bls12_377&gt;(
+        [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+        (
+            [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+            [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+        ),
+        (
+            [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+            [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+        ),
+        (
+            [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+            [&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()],
+        ),
+        &amp;[[&amp;0u8.to_be_bytes(), &amp;0u8.to_be_bytes()]],
+    )
+}
+
+... TEST ...
+
+running 1 test
+VerifyingKey {
+    alpha_g1: GroupAffine {
+        x: Fp384(
+            BigInteger384(
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ],
+            ),
+        ),
+        y: Fp384(
+            BigInteger384(
+                [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                ],
+            ),
+        ),
+        infinity: false,
+    },
+    beta_g2: GroupAffine {
+        x: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+        },
+        y: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+        },
+        infinity: false,
+    },
+    gamma_g2: GroupAffine {
+        x: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+        },
+        y: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+        },
+        infinity: false,
+    },
+    delta_g2: GroupAffine {
+        x: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+        },
+        y: QuadExtField {
+            c0: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            c1: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+        },
+        infinity: false,
+    },
+    gamma_abc_g1: [
+        GroupAffine {
+            x: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            y: Fp384(
+                BigInteger384(
+                    [
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ],
+                ),
+            ),
+            infinity: false,
+        },
+    ],
+}
+test verifying_key_wrap::test ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+</code></pre>
+<p>I have not yet tested it against a ark-groth16-generated verifying
+key, but plan to do so by comparing a ark-groth16-built verifiying key
+and one generated by my <code>build_vk</code>. That is possible since
+the <code>GroupAffine</code> type implements a <code>to_string()</code>
+method, which seems to return the number as a hash.</p>
