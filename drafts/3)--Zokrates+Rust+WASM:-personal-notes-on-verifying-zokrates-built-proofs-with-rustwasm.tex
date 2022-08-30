@@ -1,6 +1,7 @@
 \documentclass{article}
-\usepackage{listings, listings-rust}
 
+\usepackage{listings, listings-rust}
+\usepackage{amsmath}% http://ctan.org/pkg/amsmath
 \usepackage{color}
 \definecolor{lbcolor}{rgb}{0.9,0.9,0.9}  
 \lstset{  
@@ -10,6 +11,7 @@ backgroundcolor=\color{lbcolor},
 showstringspaces=false  
 }
 \newcommand{\inl}[1]{\lstinline{#1}}
+\newcommand{\thickbar}[1]{\mathbf{\bar{\text{$#1$}}}}
 
 \title{Zokrates+Rust+WASM}
 \date{29/08/2022}
@@ -188,5 +190,20 @@ Since some WASM VMs don't provide allocation for additional resources, I have tr
 
 \section{Projective representation}
 Projective representations appears to be the key to porting numbers to the affine representation without iplementing the transformation myself. The \inl{E::G1Projective} and \inl{E::G2Projective} implement the \inl{self.into_affine()} method thorugh inheritance.
+
+Since I can create a field starting from an array of bytes that represent a number:
+\begin{lstlisting}
+  let tst_bi: Fr = Field::from_random_bytes(&10u8.to_ne_bytes()).unwrap();
+\end{lstlisting}
+
+And this results in the following representation:
+
+\begin{lstlisting}
+Fp256(BigInteger256([11286724353632239479, 271994586681835377, 4576425507946680135, 164029952815760582]))
+\end{lstlisting}
+
+Where \inl{Fp256} is the same of the public inputs, which are aggregated starting from the verifying key's \inl{gamma_abc}.
+
+So I can build the key and then the \inl{prepare_inputs()} aggregates the public inputs to \( \bar{L} \) for me.
 
 \end{document}
