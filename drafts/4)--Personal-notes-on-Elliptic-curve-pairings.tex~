@@ -1,0 +1,15 @@
+\documentclass{article}
+
+\title{Personal notes on ECP and ECC}
+\newcommand{\inl}[1]{\lstinline{#1}}
+
+\begin{document}
+\maketitle
+
+
+checking
+
+\[e (P, Q) * e (G, G * 5) = 1 == p * q + 5 = 0 \]
+
+
+\end{document}

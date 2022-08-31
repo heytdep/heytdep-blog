@@ -1,0 +1,56 @@
+\documentclass{article}
+
+\title{Personal notes on ECP and ECC}
+\newcommand{\inl}[1]{\lstinline{#1}}
+
+\begin{document}
+\maketitle
+
+
+\section{Pairing basics}
+
+Pairings' power lies in the fact that they allow for checking fairly complicated equations on elliptic curve points (x, y).
+
+\[e (P, Q) * e (G, G * 5) = 1 == p * q + 5 = 0 \]
+
+Pairings in general aren't complicate, for example when working with integers:
+
+\[ e (x, y) = 2^{ x \times y } \]
+
+However, such numbers aren't suitable for ECC since they are very simple to analyze, for example, if you have both \( x \) and \( e (x, y) \), you can compute \( y \) with a division and a logarithm.
+
+Elliptic curve pairings on the other hand, allow you to treat these pairings as black boxes where only certain operations are permitted (+, -, /, *).
+
+\
+
+Prime fields are a set of numbers
+
+\[ { 0, 1, 2, ..., p - 1 } where \ p \ is \ a \ prime \]
+
+that are needed in ECC TK
+
+Operations involving \( p \) are as follows:
+
+\[ a + b:  (a + b) \mod p \]
+\[ a - b:  (a - b) \mod p \]
+\[ a \times b:  (a \times b) \mod p \]
+\[ a \div b:  (a \times b^{p-2}) \mod p \]
+
+The division is different since we only want to deal with integers.
+
+We also work with extensions of a field, where in our case \( i ^ 2 + 1 = 0 \) is the equations that always needs to be false.
+
+
+Elliptic curve pairings are maps
+
+\[ G_2 \times G_1 \rightarrow G_t  \]
+
+With:
+\begin{itemize}
+\item \( G_1 \) being an elliptic curve ( \( y^2 = x^3 + b \) ), and \inl{(x, y)} are memebrs of a field \( F_p \).
+\item \( G_2 \) being an elliptic curve, where \inl{(x, y)} are members of a field \( F_p^{12} \). We also defined a \( w \) defined by a 12th degree polynomial.
+\item \( G_t \) is the result which is also F_p^{12}
+\end{itemize}
+
+
+\end{document}
