@@ -1,3 +1,56 @@
-<p>checking</p>
+<h1 id="pairing-basics">Pairing basics</h1>
+<p>Pairings’ power lies in the fact that they allow for checking fairly
+complicated equations on elliptic curve points (x, y).</p>
 <p><span
 class="math display"><em>e</em>(<em>P</em>,<em>Q</em>) * <em>e</em>(<em>G</em>,<em>G</em>*5) = 1 =  = <em>p</em> * <em>q</em> + 5 = 0</span></p>
+<p>Pairings in general aren’t complicate, for example when working with
+integers:</p>
+<p><span
+class="math display"><em>e</em>(<em>x</em>,<em>y</em>) = 2<sup><em>x</em> × <em>y</em></sup></span></p>
+<p>However, such numbers aren’t suitable for ECC since they are very
+simple to analyze, for example, if you have both <span
+class="math inline"><em>x</em></span> and <span
+class="math inline"><em>e</em>(<em>x</em>,<em>y</em>)</span>, you can
+compute <span class="math inline"><em>y</em></span> with a division and
+a logarithm.</p>
+<p>Elliptic curve pairings on the other hand, allow you to treat these
+pairings as black boxes where only certain operations are permitted (+,
+-, /, *).</p>
+<p> </p>
+<p>Prime fields are a set of numbers</p>
+<p><span
+class="math display">0, 1, 2, ..., <em>p</em> − 1<em>w</em><em>h</em><em>e</em><em>r</em><em>e</em> <em>p</em> <em>i</em><em>s</em> <em>a</em> <em>p</em><em>r</em><em>i</em><em>m</em><em>e</em></span></p>
+<p>that are needed in ECC TK</p>
+<p>Operations involving <span class="math inline"><em>p</em></span> are
+as follows:</p>
+<p><span
+class="math display"><em>a</em> + <em>b</em> : (<em>a</em>+<em>b</em>) mod  <em>p</em></span>
+<span
+class="math display"><em>a</em> − <em>b</em> : (<em>a</em>−<em>b</em>) mod  <em>p</em></span>
+<span
+class="math display"><em>a</em> × <em>b</em> : (<em>a</em>×<em>b</em>) mod  <em>p</em></span>
+<span
+class="math display"><em>a</em> ÷ <em>b</em> : (<em>a</em>×<em>b</em><sup><em>p</em> − 2</sup>) mod  <em>p</em></span></p>
+<p>The division is different since we only want to deal with
+integers.</p>
+<p>We also work with extensions of a field, where in our case <span
+class="math inline"><em>i</em><sup>2</sup> + 1 = 0</span> is the
+equations that always needs to be false.</p>
+<p>Elliptic curve pairings are maps</p>
+<p><span
+class="math display"><em>G</em><sub>2</sub> × <em>G</em><sub>1</sub> → <em>G</em><sub><em>t</em></sub></span></p>
+<p>With:</p>
+<ul>
+<li><p><span class="math inline"><em>G</em><sub>1</sub></span> being an
+elliptic curve ( <span
+class="math inline"><em>y</em><sup>2</sup> = <em>x</em><sup>3</sup> + <em>b</em></span>
+), and <code>(x, y)</code> are memebrs of a field <span
+class="math inline"><em>F</em><sub><em>p</em></sub></span>.</p></li>
+<li><p><span class="math inline"><em>G</em><sub>2</sub></span> being an
+elliptic curve, where <code>(x, y)</code> are members of a field <span
+class="math inline"><em>F</em><sub><em>p</em></sub><sup>12</sup></span>.
+We also defined a <span class="math inline"><em>w</em></span> defined by
+a 12th degree polynomial.</p></li>
+<li><p><span class="math inline"><em>G</em><sub><em>t</em></sub></span>
+is the result which is also F_p^<span>12</span></p></li>
+</ul>
