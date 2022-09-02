@@ -1070,7 +1070,7 @@ The following tests prove the validity or invalidity of a proof given the verify
 </code></pre>
 <h2 id="zokrates-built-proof">1: zokrates-built proof</h2>
 <p>Finally, we can verify a zokrates-built proof. This test shows that
-we verify the proof for the following circuit:</p>
+we successfully verify the proof for the following circuit:</p>
 <pre><code>  def main(private field a, field b) {
     assert(a * a == b);
     return;
@@ -1122,3 +1122,10 @@ we verify the proof for the following circuit:</p>
 
 }
 </code></pre>
+<h1 id="zokrates-json-to-fn-input">Zokrates JSON to fn input</h1>
+<p>To facilitate the development process, I’ve created a js script that
+parses the JSON input into a string that I can paste directly as the fn
+params.</p>
+<p>The script can be found at <a
+href="https://gist.github.com/heytdep/0b2d13ffb0ee58e17dcabfe5592e63d0"
+class="uri">https://gist.github.com/heytdep/0b2d13ffb0ee58e17dcabfe5592e63d0</a>.</p>

@@ -1101,7 +1101,7 @@ The following tests prove the validity or invalidity of a proof given the verify
 \end{lstlisting}
 
 \subsection{1: zokrates-built proof}
-Finally, we can verify a zokrates-built proof. This test shows that we verify the proof for the following circuit:
+Finally, we can verify a zokrates-built proof. This test shows that we successfully verify the proof for the following circuit:
 
 \begin{lstlisting}
   def main(private field a, field b) {
@@ -1159,5 +1159,10 @@ Finally, we can verify a zokrates-built proof. This test shows that we verify th
 }
 
 \end{lstlisting}
+
+\section{Zokrates JSON to fn input}
+To facilitate the development process, I've created a js script that parses the JSON input into a string that I can paste directly as the fn params.
+
+The script can be found at \url{https://gist.github.com/heytdep/0b2d13ffb0ee58e17dcabfe5592e63d0}.
 
 \end{document}
