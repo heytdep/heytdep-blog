@@ -206,9 +206,9 @@ assumptions, you should double-check them):</p>
     let x = pt.0;
     let y = pt.1;
 
-    let l = 3 * x * *2 / (2 * y);
+    let l = 3 * x.exp(2) / (2 * y);
 
-    let newx = l * *2 - 2 * x;
+    let newx = l.exp(2) - 2 * x;
     let newy = -l * newx + l * x - y;
 
     G1Point(newx, newy)
@@ -227,7 +227,7 @@ assumptions, you should double-check them):</p>
 
     let l = (y2 - y1) / (x2 - x1);
 
-    let newx = l * *2 - x1 - x2;
+    let newx = l.exp(2) - x1 - x2;
     let newy = -l * newx + l * x1 - y1;
 
     G1Point(newx, newy)
@@ -245,6 +245,13 @@ assumptions, you should double-check them):</p>
   }
   }</code></pre>
 <h2 id="pairing">Pairing</h2>
+<p>EC pairings are how we actually implement verification. We define a
+pairing function:</p>
+<p><span
+class="math display"><em>e</em> : <em>G</em><sub>1</sub> × <em>G</em><sub>2</sub> → <em>G</em><sub><em>t</em></sub></span></p>
+<p>Which isn’t degenerate and that respects bilinearity:</p>
+<p><span
+class="math display"><em>e</em>(<em>m</em>×<em>P</em>1,<em>n</em>×<em>P</em>2) = <em>e</em>(<em>P</em>1,<em>P</em>2)<sup>(<em>m</em>*<em>n</em>)</sup></span></p>
 <p>Lastly, after aggregating our inputs (<span
 class="math inline"><em>L</em></span>), we have to check (starting from
 the <a

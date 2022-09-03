@@ -220,9 +220,9 @@ My implementations of the elliptic operations used are the following (I don't ha
     let x = pt.0;
     let y = pt.1;
 
-    let l = 3 * x * *2 / (2 * y);
+    let l = 3 * x.exp(2) / (2 * y);
 
-    let newx = l * *2 - 2 * x;
+    let newx = l.exp(2) - 2 * x;
     let newy = -l * newx + l * x - y;
 
     G1Point(newx, newy)
@@ -241,7 +241,7 @@ My implementations of the elliptic operations used are the following (I don't ha
 
     let l = (y2 - y1) / (x2 - x1);
 
-    let newx = l * *2 - x1 - x2;
+    let newx = l.exp(2) - x1 - x2;
     let newy = -l * newx + l * x1 - y1;
 
     G1Point(newx, newy)
@@ -262,6 +262,13 @@ My implementations of the elliptic operations used are the following (I don't ha
 
 \subsection{Pairing}
 
+EC pairings are how we actually implement verification. We define a pairing function:
+
+\[ e: G_1 \times  G_2 \rightarrow G_t \]
+
+Which isn't degenerate and that respects bilinearity:
+
+\[ e ( m \times P1, n \times P2) = e ( P1, P2 ) ^ ( m * n ) \]
 
 Lastly, after aggregating our inputs (\(L\)), we have to check (starting from the \href{https://xn--2-umb.com/22/pairings/index.html}{pairing}):
 
