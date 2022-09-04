@@ -270,12 +270,26 @@ Which isn't degenerate and that respects bilinearity:
 
 \[ e ( m \times P1, n \times P2) = e ( P1, P2 ) ^ ( m * n ) \]
 
-Lastly, after aggregating our inputs (\(L\)), we have to check (starting from the \href{https://xn--2-umb.com/22/pairings/index.html}{pairing}):
+We can then verify that:
+
+\[ e ( a_1, b_1) \times e ( a_2, b_2 ) \times e ( a_3, b_3 ) ... \times e ( a_k, b_k ) = 1 \]
+
+This is how the EIP-197 implementation works.
+
+We aggregate our inputs into (\(L\)), we have to check (starting from the \href{https://xn--2-umb.com/22/pairings/index.html}{pairing}):
 
 \[ e(A, B) = e(\alpha \ \times \ G_1, \ \beta \ \times G_2) + e(L, \ \gamma \ \times \ G_2) + e(C, \ \delta \ \times \ G_2)\]
 
 Where \texttt{A}, \texttt{B}, \texttt{C} are the proof, \texttt{L} is the aggregation of the inputs.
 
 The implementation for the bn128 pairing (by \href{https://vitalik.ca}{vitalik}) can be found \href{https://github.com/ethereum/py_pairing/blob/master/py_ecc/bn128/bn128_pairing.py#L68}{here}.
+
+\
+
+The equation becomes:
+
+\[ P_a \times P_b + ( L_i \div VK_{\gamma} ) \times ( - \gamma ) + P_c \times ( - \delta ) = VK_{\alpha} \times VK_{\beta} \]
+
+Where \( G_1 \times G_2 \) corresponds to \( e ( G_1 , G_2 ) \).
 
 \end{document}

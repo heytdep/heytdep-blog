@@ -252,7 +252,11 @@ class="math display"><em>e</em> : <em>G</em><sub>1</sub> × <em>G</em><s
 <p>Which isn’t degenerate and that respects bilinearity:</p>
 <p><span
 class="math display"><em>e</em>(<em>m</em>×<em>P</em>1,<em>n</em>×<em>P</em>2) = <em>e</em>(<em>P</em>1,<em>P</em>2)<sup>(<em>m</em>*<em>n</em>)</sup></span></p>
-<p>Lastly, after aggregating our inputs (<span
+<p>We can then verify that:</p>
+<p><span
+class="math display"><em>e</em>(<em>a</em><sub>1</sub>,<em>b</em><sub>1</sub>) × <em>e</em>(<em>a</em><sub>2</sub>,<em>b</em><sub>2</sub>) × <em>e</em>(<em>a</em><sub>3</sub>,<em>b</em><sub>3</sub>)... × <em>e</em>(<em>a</em><sub><em>k</em></sub>,<em>b</em><sub><em>k</em></sub>) = 1</span></p>
+<p>This is how the EIP-197 implementation works.</p>
+<p>We aggregate our inputs into (<span
 class="math inline"><em>L</em></span>), we have to check (starting from
 the <a
 href="https://xn--2-umb.com/22/pairings/index.html">pairing</a>):</p>
@@ -263,3 +267,11 @@ class="math display"><em>e</em>(<em>A</em>,<em>B</em>) = <em>e</em>(<em>α</
 <p>The implementation for the bn128 pairing (by <a
 href="https://vitalik.ca">vitalik</a>) can be found <a
 href="https://github.com/ethereum/py_pairing/blob/master/py_ecc/bn128/bn128_pairing.py#L68">here</a>.</p>
+<p> </p>
+<p>The equation becomes:</p>
+<p><span
+class="math display"><em>P</em><sub><em>a</em></sub> × <em>P</em><sub><em>b</em></sub> + (<em>L</em><sub><em>i</em></sub>÷<em>V</em><em>K</em><sub><em>γ</em></sub>) × (−<em>γ</em>) + <em>P</em><sub><em>c</em></sub> × (−<em>δ</em>) = <em>V</em><em>K</em><sub><em>α</em></sub> × <em>V</em><em>K</em><sub><em>β</em></sub></span></p>
+<p>Where <span
+class="math inline"><em>G</em><sub>1</sub> × <em>G</em><sub>2</sub></span>
+corresponds to <span
+class="math inline"><em>e</em>(<em>G</em><sub>1</sub>,<em>G</em><sub>2</sub>)</span>.</p>
