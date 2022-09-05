@@ -274,4 +274,24 @@ class="math display"><em>P</em><sub><em>a</em></sub> × <em>P</em><sub><em>b
 <p>Where <span
 class="math inline"><em>G</em><sub>1</sub> × <em>G</em><sub>2</sub></span>
 corresponds to <span
-class="math inline"><em>e</em>(<em>G</em><sub>1</sub>,<em>G</em><sub>2</sub>)</span>.</p>
+class="math inline"><em>e</em>(<em>G</em><sub>1</sub>,<em>G</em><sub>2</sub>)</span>.
+Note how all pairings involve one point in <span
+class="math inline"><em>G</em><sub>1</sub></span> and one in <span
+class="math inline"><em>G</em><sub>2</sub></span>.</p>
+<p>This only requires three pairings assuming that <span
+class="math inline"><em>V</em><em>K</em><sub><em>α</em></sub> × <em>V</em><em>K</em><sub><em>β</em></sub></span>
+has already been computed when preparing the verifiying key.</p>
+<p>This leaves us with the following code:</p>
+<pre><code>  let inputs = prepare_inputs(&amp;prep_vk, &amp;[image]);
+
+  let mut pa_pb = Bn128::pairing(proof.a, proof.b);
+  let l_nvkg = Bn128::pairing(inputs, prep_vk.gamma_g2_neg);
+  let pc_nvkd = Bn128::pairing(proof.c, prep_vk.delta_g2_neg);
+
+  pa_pb.mul_assign(l_nvkg);
+  pa_pb.mul_assign(pc_nvkd);
+
+  let out = pa_pb.eq(&amp;prep_vk.alpha_g1_beta_g2);</code></pre>
+<p>Where ends up being as long as the proof is valid.</p>
+<p>What we had to do is implementing a pairing function for the Bn128
+curve.</p>

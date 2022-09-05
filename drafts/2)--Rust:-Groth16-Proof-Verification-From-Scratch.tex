@@ -290,6 +290,27 @@ The equation becomes:
 
 \[ P_a \times P_b + L_i \times ( - \gamma ) + P_c \times ( - \delta ) = VK_{\alpha} \times VK_{\beta} \]
 
-Where \( G_1 \times G_2 \) corresponds to \( e ( G_1 , G_2 ) \).
+Where \( G_1 \times G_2 \) corresponds to \( e ( G_1 , G_2 ) \). Note how all pairings involve one point in \( G_1 \) and one in \( G_2 \).
+
+This only requires three pairings assuming that \( VK_{\alpha} \times VK_{\beta} \) has already been computed when preparing the verifiying key.
+
+This leaves us with the following code:
+
+\begin{lstlisting}
+  let inputs = prepare_inputs(&prep_vk, &[image]);
+
+  let mut pa_pb = Bn128::pairing(proof.a, proof.b);
+  let l_nvkg = Bn128::pairing(inputs, prep_vk.gamma_g2_neg);
+  let pc_nvkd = Bn128::pairing(proof.c, prep_vk.delta_g2_neg);
+
+  pa_pb.mul_assign(l_nvkg);
+  pa_pb.mul_assign(pc_nvkd);
+
+  let out = pa_pb.eq(&prep_vk.alpha_g1_beta_g2);
+\end{lstlisting}
+
+Where \inl{out} ends up being \inl{true} as long as the proof is valid.
+
+What we had to do is implementing a pairing function for the Bn128 curve. 
 
 \end{document}
