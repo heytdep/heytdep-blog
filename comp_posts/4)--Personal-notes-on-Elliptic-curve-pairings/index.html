@@ -1,3 +1,4 @@
+<p><code>last updated: 6 Sept 2022</code></p>
 <h1 id="pairing-basics">Pairing basics</h1>
 <p>Pairings’ power lies in the fact that they allow for checking fairly
 complicated equations on elliptic curve points (x, y).</p>
@@ -54,3 +55,43 @@ a 12th degree polynomial.</p></li>
 <li><p><span class="math inline"><em>G</em><sub><em>t</em></sub></span>
 is the result which is also F_p^<span>12</span></p></li>
 </ul>
+<p> </p>
+<h1 id="computing-pairings-with-millers-algorithm">Computing pairings
+with Miller’s Algorithm</h1>
+<p>The most optimized way of computing a bilinear and non-degenerate
+elliptic curve pairing <span
+class="math inline"><em>e</em>(<em>P</em>,<em>Q</em>)</span> where P and
+Q are two points on an elliptic curve and the result is a scalar, is by
+first using miller’s recursive algorithm to compute a function <span
+class="math inline"><em>f</em><sub><em>λ</em>, <em>Q</em></sub>(<em>P</em>)</span>
+and then raising it to the large power <span
+class="math inline">(<em>q</em><sup>12</sup>−1)/<em>r</em></span>.</p>
+<p>With <span class="math inline"><em>q</em></span> as the prime order
+of the coordinate field of BLS12 <span
+class="math inline"><em>F</em><sub><em>q</em></sub></span>, and <span
+class="math inline"><em>r</em></span> as the order of the groupt of
+points on the curve, and two points <span
+class="math inline"><em>Q</em>, <em>P</em></span>, we want to compute
+<span
+class="math inline"><em>f</em><sub><em>λ</em></sub>, <em>Q</em>(<em>P</em>)</span>
+of <span
+class="math inline"><em>F</em><sub><em>q</em></sub><sup>12</sup></span>
+which is simply an evaluation of a certain function <span
+class="math inline"><em>f</em><sub><em>λ</em></sub>, <em>Q</em></span>
+at point <span class="math inline"><em>P</em></span> with <span
+class="math inline"><em>λ</em></span> being the remainder of <span
+class="math inline"><em>q</em> ÷ <em>r</em></span>.</p>
+<p>We compute such rational function with Miller’s loop which
+recursively builds rational functions of the type <span
+class="math inline"><em>f</em><sub><em>i</em></sub>, <em>Q</em></span>
+with <span class="math inline"><em>i</em></span> between <span
+class="math inline">0</span> and <span
+class="math inline"><em>λ</em></span>:</p>
+<p><span
+class="math display"><em>f</em><sub><em>i</em> + <em>j</em>, <em>Q</em></sub> = <em>f</em><sub><em>i</em>, <em>Q</em></sub> × <em>f</em><sub><em>j</em>, <em>Q</em></sub> × <em>l</em><sub><em>i</em>, <em>j</em>, <em>Q</em></sub> ÷ <em>v</em><sub><em>i</em> + <em>j</em>, <em>Q</em></sub></span></p>
+<p>With <span
+class="math inline"><em>l</em><sub><em>i</em>, <em>j</em>, <em>Q</em></sub> ÷ <em>v</em><sub><em>i</em> + <em>j</em>, <em>Q</em></sub></span>
+being the ratio between a line passing through <span
+class="math inline"><em>i</em><em>Q</em>, <em>j</em><em>Q</em></span>
+and one (vertical) passing through <span
+class="math inline">(<em>i</em>+<em>j</em>)<em>Q</em></span>.</p>

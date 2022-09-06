@@ -6,6 +6,7 @@
 \begin{document}
 \maketitle
 
+\inl{last updated: 6 Sept 2022}
 
 \section{Pairing basics}
 
@@ -52,5 +53,17 @@ With:
 \item \( G_t \) is the result which is also F_p^{12}
 \end{itemize}
 
+\
+
+\section{Computing pairings with Miller's Algorithm}
+The most optimized way of computing a bilinear and non-degenerate elliptic curve pairing \( e (P, Q) \) where P and Q are two points on an elliptic curve and the result is a scalar, is by first using miller's recursive algorithm to compute a function \( f_{\lambda, Q}(P)\) and then raising it to the large power \( (q^{12} - 1) / r \).
+
+With \( q \) as the prime order of the coordinate field of BLS12 \( F_q \), and \( r \) as the order of the groupt of points on the curve, and two points \( Q, P \), we want to compute \( f_\lambda, Q (P) \) of \( F_q^{12} \) which is simply an evaluation of a certain function \( f_\lambda, Q \) at point \( P \) with \( \lambda \) being the remainder of \( q \div r \).
+
+We compute such rational function with Miller's loop which recursively builds rational functions of the type \( f_i, Q \) with \( i \) between \( 0 \) and \( \lambda \):
+
+\[ f_{ i + j, Q} = f_{ i, Q } \times f_{ j, Q } \times l_{i, j, Q} \div v_{i + j, Q} \]
+
+With \( l_{i, j, Q} \div v_{i + j, Q} \) being the ratio between a line passing through \( iQ, jQ \) and one (vertical) passing through \( (i + j) Q \).
 
 \end{document}
