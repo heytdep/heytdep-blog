@@ -64,7 +64,7 @@ h1 {
 html, body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  max-width: 900px;
+  max-width: 700px;
   margin: auto;
 }
 
@@ -106,7 +106,7 @@ ul {
 #content {
     width: 90%;
     margin: auto;
-    max-width: 800px;
+    max-width: 600px;
 }
 
 .heading {
