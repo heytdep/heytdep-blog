@@ -88,7 +88,7 @@ document.body.appendChild(post);
 </body>
 </html>
 "#,
-        post_name_split[1].replace("-", " ")
+        post_name_split[2].replace("-", " ")
     );
 
     let mut file = File::create(format!("./comp_posts/{}/post.html", &dir_name)).unwrap();
