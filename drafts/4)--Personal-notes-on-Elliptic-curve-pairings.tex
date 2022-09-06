@@ -66,4 +66,35 @@ We compute such rational function with Miller's loop which recursively builds ra
 
 With \( l_{i, j, Q} \div v_{i + j, Q} \) being the ratio between a line passing through \( iQ, jQ \) and one (vertical) passing through \( (i + j) Q \).
 
+When actually computing the algorithm, there are some optimizations to make:
+
+\begin{itemize}
+\item no need to evaluate vertical lines since they will always resolve to 1 after the final exponentiation.
+\item we twist to an EC over \( F_{12} \).
+\end{itemize}
+
+\subsection{Final Exponentiation}
+In order to compute an optimal Ate pairing, when need to raise the output of out miller loop to \( q^{12} - 1 \div r \):
+
+\[ ate (P, Q) = f_{\lambda, Q} (P) ^{(q^{12} - 1) \div r} \]
+
+Since the power \( (q^{12} - 1) \div r \) is very large in bits, using a standard repeated multiplication to raise \( f \) would be inconvenient, thus we use the frobenius operator and the cyclotomic subgroup to split the computation in two parts.
+
+\subsubsection{Forbenius Operator}
+The frobenius operator allows us to perform \( f \to f^q \), and is computationally efficient since we work with finite fields.
+This way we can factorize the power into:
+
+\[ (q^6 - 1)(q^2 +1) \times ( q^4 - q^2 + 1 \div r ) \]
+
+and use the frobenius operator to obtain:
+
+\[ f_{frobenius}^{(q^6 - 1)(q^2 +1)} \]
+
+
+\subsubsection{cyclomatic subgroup}
+We now have to compute \( f_{frobenius}^{( q^4 - q^2 + 1 \div r )} \), to do so we do:
+
+\[ f_{final} = f_{}\limits{ ^{\lambda_0}} \times (f_{} ^ { \lambda_1})^q \times (f_{} ^ { \lambda_2})^{q^2} \times (f_{} ^{\lambda_3})^{q^3}  \]
+
+
 \end{document}
