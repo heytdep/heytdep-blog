@@ -2,6 +2,10 @@
 /*
   Light Mode Color Scheme
 */
+img {
+    max-width: 650px;
+}
+
 :root {
   --color-anchor: #337ab7;
   --color-bg: #fff;
