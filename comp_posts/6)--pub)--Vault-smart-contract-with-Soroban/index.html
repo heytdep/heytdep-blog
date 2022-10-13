@@ -1,11 +1,11 @@
 <p><code>12 october 2022</code></p>
 <h1 id="introduction">Introduction</h1>
-<p>In about August 2022 the Stellar Development Foundation has released
-the first documented version of the <code>sorban_sdk</code>, a Rust SDK
-to build and test smart contracts compatible to Soroban’s WebAssembly
-VM. Now that the <code>v0.1.0</code> version has been released, I’ve
-decided to write a detailed write-up about creating a vault smart
-contract with the soroban sdk.</p>
+<p>In about August 2022 the Stellar Development Foundation released the
+first documented version of the sorban_sdk, a Rust SDK to build and test
+smart contracts compatible with Soroban’s WebAssembly VM. Now that the
+<code>v0.1.0</code> version has been released, I’ve decided to write a
+detailed write-up about creating a vault smart contract with the soroban
+SDK.</p>
 <p>Without further introductory words, let’s get started!</p>
 <h1 id="contract-workflow">Contract Workflow</h1>
 <p>This contract is of a very popular kind in the DeFi world: a protocol
@@ -13,7 +13,7 @@ generates yield, and users can buy shares of the protocol’s vault, and
 burn them to get their money back along with the farmed yield (hopefully
 a positive number).</p>
 <p>Since soroban hasn’t yet launched on chain, we can’t use any
-yield-farming techniques, on the other hand we will focus on the vault
+yield-farming techniques, on the other, hand we will focus on the vault
 itself: how to create a contract that allows users to deposit and
 withdraw shares, all while enforcing composability.</p>
 <p>This article will also make use of basic financial maths, luckily
@@ -24,8 +24,8 @@ standards, so that it can be used by other contracts very easily, that
 is why some concepts such as vault admins and not needing deposit
 confirmation to mint shares to a user may sound strange, but I’ll try to
 explain them here. The contract will have an admin which has to be the
-invoker of the contract functions. For instance, Bob wants to deposit to
-the vault, he calls contract <span
+invoker of the contract functions. For instance, if Bob wants to deposit
+to the vault, he calls contract <span
 class="math inline"><em>c</em><em>o</em><em>n</em><em>t</em><em>r</em><em>a</em><em>c</em><em>t</em>(<em>a</em><em>r</em><em>g</em><em>s</em>)</span>
 which makes sure Bob has deposited funds into the vault, and then being
 the admin of the vault calls our vault contract <span
@@ -60,11 +60,11 @@ soroban-sdk = { version = &quot;0.1.0&quot;, features = [&quot;testutils&quot;] 
 soroban-auth = { version = &quot;0.1.0&quot;, features = [&quot;testutils&quot;] }
 rand = { version = &quot;0.7.3&quot; }
 </code></pre>
-<p>Here you are basically telling cargo that you’ll be using the soroban
-sdk and its auth helpers, and you are telling the compiler that the
-compilation will produce a dynamic system library ("cdylib") and
-statistically linked executables ("rlib" contents are inserted in the
-executable) (remember we are building a WASM crate).</p>
+<p>Here you are telling cargo that you’ll be using the soroban sdk and
+its auth helpers, and you are telling the compiler that the compilation
+will produce a dynamic system library ("cdylib") and statistically
+linked executables ("rlib" contents are inserted in the executable)
+(remember we are building a WASM crate).</p>
 <h2 id="project-structure">Project structure</h2>
 <p>Besides the <code>lib.rs</code> file, in order to make the project a
 bit cleaner you’ll have to create the <code>test.rs</code> and
@@ -109,7 +109,7 @@ pub enum DataKey {
     Balance(Identifier),
     Nonce(Identifier),
 }</code></pre>
-<p>This means that we will store 5 kind of data on our contracts:</p>
+<p>This means that we will store 5 kinds of data on our contracts:</p>
 <ul>
 <li><p>the <code>TokenId</code> will be the id of the token the admin
 wishes to be used in the vault</p></li>
@@ -130,7 +130,7 @@ pub struct Auth {
     pub nonce: BigInt,
 }</code></pre>
 <h2 id="data-helpers">Data Helpers</h2>
-<p>Below I defined some function to help me when working with contract
+<p>Below I defined some functions to help me when working with contract
 data operations (setting and reading data):</p>
 <pre><code>fn get_contract_id(e: &amp;Env) -&gt; Identifier {
     Identifier::Contract(e.get_current_contract())
@@ -167,11 +167,11 @@ fn get_token_id(e: &amp;Env) -&gt; BytesN&lt;32&gt; {
 }</code></pre>
 <p>As you can see, what I do here is just summarize actions like getting
 the total supply in a single function so that the development results
-faster and more comfortable.</p>
+faster and more comfortably.</p>
 <h2 id="token-functions">Token Functions</h2>
 <p>For our contract, we will only need the standard token contract to
 check the vault balance, and to transfer funds out of the vault. I have
-defined two functions that achieve this behaviour:</p>
+defined two functions that achieve this behavior:</p>
 <pre><code>fn get_token_balance(e: &amp;Env) -&gt; BigInt {
     let contract_id = get_token_id(e);
     token::Client::new(e, contract_id).balance(&amp;get_contract_id(e))
@@ -186,7 +186,7 @@ fn transfer(e: &amp;Env, to: Identifier, amount: BigInt) {
         &amp;amount,
     );
 }</code></pre>
-<p>Rememeber that we are getting the token to transfer and to check the
+<p>Remember that we are getting the token to transfer and to check the
 balance from thanks to the <code>get_token_id()</code> function we
 defined previously.</p>
 <h2 id="admin-management">Admin management</h2>
@@ -246,9 +246,9 @@ fn verify_and_consume_nonce(e: &amp;Env, auth: &amp;Signature, expected_nonce: &
     }
     e.data().set(key, &amp;nonce + 1);
 }</code></pre>
-<h2 id="the-actual-contract-invokation-functions">The Actual Contract
-Invokation functions</h2>
-<p>We can now finally start writing our invokation functions, i.e the
+<h2 id="the-actual-contract-invocation-functions">The Actual Contract
+Invocation functions</h2>
+<p>We can now finally start writing our invocation functions, i.e the
 functions that other contracts will invoke. For better code
 maintainability, we define a trait for our vault contract (the comments
 on top of each function describe what the function does):</p>
@@ -269,7 +269,7 @@ on top of each function describe what the function does):</p>
     fn get_shares(e: Env, id: Identifier) -&gt; BigInt;
 }</code></pre>
 <p>Then we create a <code>VaultContract</code> struct, and write the
-contract iplementation with <code>#[contractimpl]</code>:</p>
+contract implementation with <code>#[contractimpl]</code>:</p>
 <pre><code>
 pub struct VaultContract;
 
@@ -323,17 +323,17 @@ impl VaultContractTrait for VaultContract {
     }
 }
 </code></pre>
-<p>That was a big step, so lets break the contract down into 4
+<p>That was a big step, so let’s break the contract down into 4
 parts:</p>
 <h3 id="initialization">initialization</h3>
-<p>In the <code>initialize</code> function, we are checking wether the
+<p>In the <code>initialize</code> function, we are checking whether the
 vault contract already has an administrator, if not we are adding one
 along with the token to use in the vault (the token id is an array of 32
 bytes).</p>
 <h3 id="deposit-shares-minting">deposit: shares minting</h3>
-<p>The depoisit first checks if the invoker is actually the contract
+<p>The deposit first checks if the invoker is actually the contract
 admin through the <code>check_admin</code> function (and it updates the
-noce). Then it calculates the amount of shares to mint, which respect
+noce). Then it calculates the amount of shares to mint, which respects
 the following equation:</p>
 <p><span
 class="math inline">(<em>S</em>+<em>s</em>) ÷ <em>S</em> = (<em>a</em>+<em>B</em>) ÷ <em>B</em></span></p>
@@ -351,7 +351,7 @@ class="math display"><em>B</em><em>s</em> = <em>a</em><em>S</em></span>
 <p><span
 class="math display"><em>s</em> = <em>a</em><em>S</em> ÷ <em>B</em></span></p>
 <p>Thus the shares to mint are
-<code>( amount * tot_supply ) / vault token balance - amount // since we need to substract the amount the user has already deposited in the vault</code>,
+<code>( amount * tot_supply ) / vault token balance - amount // since we need to subtract the amount the user has already deposited in the vault</code>,
 as the contract describes.</p>
 <p>Lastly, we are calling a <code>mint_shares</code> function that we
 can define under our helper functions section:</p>
@@ -398,10 +398,10 @@ define right below the <code>mint_shares</code> function:</p>
 </code></pre>
 <h3 id="getters">getters</h3>
 <p>The nonce and <code>get_balance</code> fns are simple getters that
-simply read data from the contract and extern it to the invokation.</p>
+simply read data from the contract and extern it to the invocation.</p>
 <h1 id="testing-the-contract">Testing the Contract</h1>
 <p>In this section, we are going to test our contract and simulate the
-situation were:</p>
+situation where:</p>
 <ol>
 <li><p>User 1 is the admin of the vault</p></li>
 <li><p>User 1 buys 5 shares from the vault</p></li>
@@ -411,9 +411,9 @@ contract)</p></li>
 <li><p>user 1 withdraws 3 of 5 shares from the vault</p></li>
 </ol>
 <h2 id="testutils.rs">testutils.rs</h2>
-<p>In order to have a better teting experience, we are going to use some
-testutils to ease the process of registering the contract and invoking
-it.</p>
+<p>In order to have a better testing experience, we are going to use
+some testutils to ease the process of registering the contract and
+invoking it.</p>
 <p>To interact with the Vault contract, we will have to import the
 <code>VaultContractClient</code> struct, which is added automatically to
 our crate:</p>
@@ -496,7 +496,7 @@ impl VaultContract {
 </code></pre>
 <p>Note that I am using <code>Signature::Invoker</code> as signature to
 pass, this means that I am passing the signature of the source account
-of the transaction, which I set to be the admin with with
+of the transaction, which I set to be the admin with
 <code>self.env.set_source_account(&amp;admin)</code>.</p>
 <p>We are now ready to write the actual test.</p>
 <h2 id="test.rs">test.rs</h2>
@@ -509,7 +509,7 @@ also define three functions:</p>
 <li><p>one to generate random contract ids</p></li>
 <li><p>one to register the token contract of USDC (just a representation
 of it)</p></li>
-<li><p>one to create the vault contract thorugh the testutils’
+<li><p>one to create the vault contract through the testutils’
 <code>VaultContract</code> struct</p></li>
 </ul>
 <pre><code>#![cfg(test)]
@@ -636,7 +636,7 @@ fn test() {
 </code></pre>
 <h1 id="wrapping-it-all-up">Wrapping it all up</h1>
 <p>I hope that the reader found this tutorial useful, and in order to
-make the process easier if you encounter errors you sholdn’t be
+make the process easier if you encounter errors you shouldn’t be
 encountering I have published the code to a <a
 href="https://github.com/Xycloo/soroban-vault-contract">Github
 repo</a>.</p>

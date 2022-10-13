@@ -19,18 +19,18 @@ breaklines=true
 \texttt{12 october 2022}
 
 \section{Introduction}
-In about August 2022 the Stellar Development Foundation has released the first documented version of the \inl{sorban_sdk}, a Rust SDK to build and test smart contracts compatible to Soroban's WebAssembly VM. Now that the \inl{v0.1.0} version has been released, I've decided to write a detailed write-up about creating a vault smart contract with the soroban sdk.
+In about August 2022 the Stellar Development Foundation released the first documented version of the sorban_sdk, a Rust SDK to build and test smart contracts compatible with Soroban’s WebAssembly VM. Now that the \inl{v0.1.0} version has been released, I’ve decided to write a detailed write-up about creating a vault smart contract with the soroban SDK.
 
-Without further introductory words, let's get started!
+Without further introductory words, let’s get started!
 
 \section{Contract Workflow}
 This contract is of a very popular kind in the DeFi world: a protocol generates yield, and users can buy shares of the protocol's vault, and burn them to get their money back along with the farmed yield (hopefully a positive number).
 
-Since soroban hasn't yet launched on chain, we can't use any yield-farming techniques, on the other hand we will focus on the vault itself: how to create a contract that allows users to deposit and withdraw shares, all while enforcing composability.
+Since soroban hasn't yet launched on chain, we can't use any yield-farming techniques, on the other, hand we will focus on the vault itself: how to create a contract that allows users to deposit and withdraw shares, all while enforcing composability.
 
 This article will also make use of basic financial maths, luckily this blog post was written in \LaTeX, so we can enjoy equations with a pleasant interface.
 
-As I mentioned, the contract will try to enforce high composability standards, so that it can be used by other contracts very easily, that is why some concepts such as vault admins and not needing deposit confirmation to mint shares to a user may sound strange, but I'll try to explain them here. The contract will have an admin which has to be the invoker of the contract functions. For instance, Bob wants to deposit to the vault, he calls contract \( contract (args) \) which makes sure Bob has deposited funds into the vault, and then being the admin of the vault calls our vault contract \( vault (args) \).
+As I mentioned, the contract will try to enforce high composability standards, so that it can be used by other contracts very easily, that is why some concepts such as vault admins and not needing deposit confirmation to mint shares to a user may sound strange, but I'll try to explain them here. The contract will have an admin which has to be the invoker of the contract functions. For instance, if Bob wants to deposit to the vault, he calls contract \( contract (args) \) which makes sure Bob has deposited funds into the vault, and then being the admin of the vault calls our vault contract \( vault (args) \).
 
 \section{Setup}
 Assuming you have followed the instructions to \href{https://www.rust-lang.org/tools/install}{install Rust}, you can start by firing up your terminal and creating a new crate with cargo:
@@ -68,7 +68,7 @@ rand = { version = "0.7.3" }
 
 \end{lstlisting}
 
-Here you are basically telling cargo that you'll be using the soroban sdk and its auth helpers, and you are telling the compiler that the compilation will produce a dynamic system library ("cdylib") and statistically linked executables ("rlib" contents are inserted in the executable) (remember we are building a WASM crate).
+Here you are telling cargo that you'll be using the soroban sdk and its auth helpers, and you are telling the compiler that the compilation will produce a dynamic system library ("cdylib") and statistically linked executables ("rlib" contents are inserted in the executable) (remember we are building a WASM crate).
 
 \subsection{Project structure}
 Besides the \inl{lib.rs} file, in order to make the project a bit cleaner you'll have to create the \inl{test.rs} and \inl{testutils.rs} files:
@@ -118,7 +118,7 @@ pub enum DataKey {
 }
 \end{lstlisting}
 
-This means that we will store 5 kind of data on our contracts:
+This means that we will store 5 kinds of data on our contracts:
 
 \begin{itemize}
 \item the \inl{TokenId} will be the id of the token the admin wishes to be used in the vault
@@ -140,7 +140,7 @@ pub struct Auth {
 \end{lstlisting}
 
 \subsection{Data Helpers}
-Below I defined some function to help me when working with contract data operations (setting and reading data):
+Below I defined some functions to help me when working with contract data operations (setting and reading data):
 
 \begin{lstlisting}
 fn get_contract_id(e: &Env) -> Identifier {
@@ -178,10 +178,10 @@ fn get_token_id(e: &Env) -> BytesN<32> {
 }
 \end{lstlisting}
 
-As you can see, what I do here is just summarize actions like getting the total supply in a single function so that the development results faster and more comfortable.
+As you can see, what I do here is just summarize actions like getting the total supply in a single function so that the development results faster and more comfortably.
 
 \subsection{Token Functions}
-For our contract, we will only need the standard token contract to check the vault balance, and to transfer funds out of the vault. I have defined two functions that achieve this behaviour:
+For our contract, we will only need the standard token contract to check the vault balance, and to transfer funds out of the vault. I have defined two functions that achieve this behavior:
 
 \begin{lstlisting}
 fn get_token_balance(e: &Env) -> BigInt {
@@ -200,7 +200,7 @@ fn transfer(e: &Env, to: Identifier, amount: BigInt) {
 }
 \end{lstlisting}
 
-Rememeber that we are getting the token to transfer and to check the balance from thanks to the \inl{get_token_id()} function we defined previously.
+Remember that we are getting the token to transfer and to check the balance from thanks to the \inl{get_token_id()} function we defined previously.
 
 
 \subsection{Admin management}
@@ -264,8 +264,8 @@ fn verify_and_consume_nonce(e: &Env, auth: &Signature, expected_nonce: &BigInt) 
 }
 \end{lstlisting}
 
-\subsection{The Actual Contract Invokation functions}
-We can now finally start writing our invokation functions, i.e the functions that other contracts will invoke. For better code maintainability, we define a trait for our vault contract (the comments on top of each function describe what the function does):
+\subsection{The Actual Contract Invocation functions}
+We can now finally start writing our invocation functions, i.e the functions that other contracts will invoke. For better code maintainability, we define a trait for our vault contract (the comments on top of each function describe what the function does):
 
 \begin{lstlisting}
 pub trait VaultContractTrait {
@@ -286,7 +286,7 @@ pub trait VaultContractTrait {
 }
 \end{lstlisting}
 
-Then we create a \inl{VaultContract} struct, and write the contract iplementation with \inl{#[contractimpl]}:
+Then we create a \inl{VaultContract} struct, and write the contract implementation with \inl{#[contractimpl]}:
 
 \begin{lstlisting}
 
@@ -344,13 +344,13 @@ impl VaultContractTrait for VaultContract {
 
 \end{lstlisting}
 
-That was a big step, so lets break the contract down into 4 parts:
+That was a big step, so let's break the contract down into 4 parts:
 
 \subsubsection{initialization}
-In the \inl{initialize} function, we are checking wether the vault contract already has an administrator, if not we are adding one along with the token to use in the vault (the token id is an array of 32 bytes).
+In the \inl{initialize} function, we are checking whether the vault contract already has an administrator, if not we are adding one along with the token to use in the vault (the token id is an array of 32 bytes).
 
 \subsubsection{deposit: shares minting}
-The depoisit first checks if the invoker is actually the contract admin through the \inl{check_admin} function (and it updates the noce). Then it calculates the amount of shares to mint, which respect the following equation:
+The deposit first checks if the invoker is actually the contract admin through the \inl{check_admin} function (and it updates the noce). Then it calculates the amount of shares to mint, which respects the following equation:
 
 \( ( S + s ) \div S = ( a + B ) \div B \)
 
@@ -366,7 +366,7 @@ We can simplify this simple equation like this:
 
 \[ s = aS \div B \]
 
-Thus the shares to mint are \inl{( amount * tot_supply ) / vault token balance - amount // since we need to substract the amount the user has already deposited in the vault}, as the contract describes.
+Thus the shares to mint are \inl{( amount * tot_supply ) / vault token balance - amount // since we need to subtract the amount the user has already deposited in the vault}, as the contract describes.
 
 Lastly, we are calling a \inl{mint_shares} function that we can define under our helper functions section:
 
@@ -416,10 +416,10 @@ fn burn_shares(e: &Env, to: Identifier, shares: BigInt) {
 \end{lstlisting}
 
 \subsubsection{getters}
-The nonce and \inl{get_balance} fns are simple getters that simply read data from the contract and extern it to the invokation.
+The nonce and \inl{get_balance} fns are simple getters that simply read data from the contract and extern it to the invocation.
 
 \section{Testing the Contract}
-In this section, we are going to test our contract and simulate the situation were:
+In this section, we are going to test our contract and simulate the situation where:
 \begin{enumerate}
 \item User 1 is the admin of the vault
 \item User 1 buys 5 shares from the vault
@@ -429,7 +429,7 @@ In this section, we are going to test our contract and simulate the situation we
 \end{enumerate}
 
 \subsection{testutils.rs}
-In order to have a better teting experience, we are going to use some testutils to ease the process of registering the contract and invoking it.
+In order to have a better testing experience, we are going to use some testutils to ease the process of registering the contract and invoking it.
 
 To interact with the Vault contract, we will have to import the \inl{VaultContractClient} struct, which is added automatically to our crate:
 
@@ -511,7 +511,7 @@ impl VaultContract {
 
 \end{lstlisting}
 
-Note that I am using \inl{Signature::Invoker} as signature to pass, this means that I am passing the signature of the source account of the transaction, which I set to be the admin with with \inl{self.env.set_source_account(&admin)}.
+Note that I am using \inl{Signature::Invoker} as signature to pass, this means that I am passing the signature of the source account of the transaction, which I set to be the admin with \inl{self.env.set_source_account(&admin)}.
 
 We are now ready to write the actual test.
 
@@ -521,7 +521,7 @@ The first thing we want to do in our test.rs file, is importing the testutils, t
 \begin{itemize}
 \item one to generate random contract ids
 \item one to register the token contract of USDC (just a representation of it)
-\item one to create the vault contract thorugh the testutils' \inl{VaultContract} struct
+\item one to create the vault contract through the testutils' \inl{VaultContract} struct
 \end{itemize}
 
 \begin{lstlisting}
@@ -648,7 +648,7 @@ fn test() {
 \end{lstlisting}
 
 \section{Wrapping it all up}
-I hope that the reader found this tutorial useful, and in order to make the process easier if you encounter errors you sholdn't be encountering I have published the code to a \href{https://github.com/Xycloo/soroban-vault-contract}{Github repo}.
+I hope that the reader found this tutorial useful, and in order to make the process easier if you encounter errors you shouldn't be encountering I have published the code to a \href{https://github.com/Xycloo/soroban-vault-contract}{Github repo}.
 
 You can go ahead and try it out:
 
