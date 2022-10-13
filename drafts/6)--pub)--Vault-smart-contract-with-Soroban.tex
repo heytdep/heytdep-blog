@@ -653,13 +653,29 @@ I hope that the reader found this tutorial useful, and in order to make the proc
 You can go ahead and try it out:
 
 \begin{lstlisting}
-  git clone https://github.com/Xycloo/soroban-vault-token-contract
-  cd soroban-vault-contract
+> git clone https://github.com/Xycloo/soroban-vault-token-contract
+> cd soroban-vault-contract
 
-  cargo test
+> cargo test
+
+     Finished test [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (target/debug/deps/soroban_vault_contract-9f7cb3a1d823b9eb)
+
+running 1 test
+test test::test ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests soroban-vault-contract
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  
 \end{lstlisting}
 
-\includegraphics{sorobanvaulttest}
+
 
 The test passed, mission accomplished!
 
