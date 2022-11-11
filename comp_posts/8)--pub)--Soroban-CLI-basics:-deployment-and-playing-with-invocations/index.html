@@ -1,0 +1,279 @@
+<h1
+id="soroban-cli-basics-deployment-playing-with-more-complex-invocations-and-signatures">Soroban
+CLI basics: deployment, playing with more complex invocations, and
+signatures</h1>
+<h1 id="introduction">Introduction</h1>
+<p>If you have already tried out soroban, you are probably already
+familiar with Rust tests. While tests are a good way of simulating
+scenarios, when it comes down to actually deploying and invoking a
+contract you’ll have to leave the comfort of Rust tests and learn how
+the soroban CLI works. In this simple tutorial, I’ll cover some of the
+basics of the Soroban CLI.</p>
+<h1 id="writing-a-simple-contract">Writing a simple contract</h1>
+<p>For this article, I have created a contract that is simple but that
+is also a good example for explaining stuff like passing custom types to
+the CLI.</p>
+<p>So what does this contract do?</p>
+<h3 id="contract-workflow">Contract workflow</h3>
+<p>The contract has two functions:</p>
+<ul>
+<li><p><code>change_val(key: Bytes, value: Address)</code>, which
+creates or modifies a contract data entry that has <code>Bytes</code> as
+key, and an <code>Address</code> as value. Additionally, the value for
+the key can only be modified if the invoker is the address in stored as
+the value.</p></li>
+<li><p><code>get(key: Bytes)</code>, which is a simple getter which
+returns the address associated with the provided
+<code>key</code>.</p></li>
+</ul>
+<h2 id="writing-the-contract">Writing the contract</h2>
+<p>Assuming that you are already familiar with the basics of Soroban
+smart contracts and remembering what we said in the contract’s workflow,
+you should be able to understand the following code:</p>
+<div class="sourceCode" id="cb1" data-breaklines=""
+data-language="Rust"><pre class="sourceCode Rust"><code class="sourceCode rust"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">#![</span>no_std<span class="at">]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="pp">soroban_auth::</span><span class="op">{</span>verify<span class="op">,</span> Identifier<span class="op">,</span> Signature<span class="op">};</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">use</span> <span class="pp">soroban_sdk::</span><span class="op">{</span>contractimpl<span class="op">,</span> symbol<span class="op">,</span> AccountId<span class="op">,</span> Address<span class="op">,</span> Bytes<span class="op">,</span> Env<span class="op">};</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">pub</span> <span class="kw">struct</span> ExampleContract<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">#[</span>contractimpl<span class="at">]</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">impl</span> ExampleContract <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> <span class="kw">fn</span> change_val(e<span class="op">:</span> Env<span class="op">,</span> key<span class="op">:</span> Bytes<span class="op">,</span> value<span class="op">:</span> Identifier) <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">let</span> stored_addr <span class="op">=</span> e</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>data()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>get(key<span class="op">.</span>clone())</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>unwrap_or_else(<span class="op">||</span> <span class="cn">Ok</span>(<span class="pp">Identifier::</span>Contract(e<span class="op">.</span>current_contract())))</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>unwrap()<span class="op">;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> stored_addr <span class="op">==</span> <span class="pp">Identifier::</span>Contract(e<span class="op">.</span>current_contract()) <span class="op">{</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            e<span class="op">.</span>data()<span class="op">.</span>set(key<span class="op">,</span> value)<span class="op">;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>            <span class="kw">let</span> invoker_id <span class="op">=</span> <span class="cf">match</span> e<span class="op">.</span>invoker() <span class="op">{</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>                <span class="pp">Address::</span>Account(id) <span class="op">=&gt;</span> <span class="pp">Identifier::</span>Account(id)<span class="op">,</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>                <span class="pp">Address::</span>Contract(id) <span class="op">=&gt;</span> <span class="pp">Identifier::</span>Contract(id)<span class="op">,</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">};</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> stored_addr <span class="op">!=</span> invoker_id <span class="op">{</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>                <span class="pp">panic!</span>(<span class="st">&quot;you are not allowed to change this value&quot;</span>)</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>            e<span class="op">.</span>data()<span class="op">.</span>set(key<span class="op">,</span> value)</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">pub</span> <span class="kw">fn</span> get(e<span class="op">:</span> Env<span class="op">,</span> key<span class="op">:</span> Bytes) <span class="op">-&gt;</span> Identifier <span class="op">{</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        e<span class="op">.</span>data()</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>get(key)</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>unwrap_or_else(<span class="op">||</span> <span class="pp">panic!</span>(<span class="st">&quot;Key does not exist&quot;</span>))</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>unwrap()</span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="at">#[</span>cfg<span class="at">(</span>test<span class="at">)]</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="kw">mod</span> test<span class="op">;</span></span></code></pre></div>
+<p>Below is a successful invocation made with unit testing:</p>
+<div class="sourceCode" id="cb2" data-breaklines=""
+data-language="Rust"><pre class="sourceCode Rust"><code class="sourceCode rust"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">#[</span>test<span class="at">]</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">fn</span> test_change_val() <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> e <span class="op">=</span> <span class="pp">Env::</span><span class="kw">default</span>()<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> user <span class="op">=</span> e<span class="op">.</span>accounts()<span class="op">.</span>generate()<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> contract_id <span class="op">=</span> e<span class="op">.</span>register_contract(<span class="cn">None</span><span class="op">,</span> ExampleContract)<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">let</span> client <span class="op">=</span> <span class="pp">ExampleContractClient::</span>new(<span class="op">&amp;</span>e<span class="op">,</span> <span class="op">&amp;</span>contract_id)<span class="op">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    client<span class="op">.</span>with_source_account(<span class="op">&amp;</span>user)<span class="op">.</span>change_val(</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">&amp;</span><span class="pp">bytes!</span>(<span class="op">&amp;</span>e<span class="op">,</span> <span class="dv">0x68656c6c6f</span>)<span class="op">,</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">&amp;</span><span class="pp">soroban_auth::Identifier::</span>Account(user<span class="op">.</span>clone())<span class="op">,</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    )<span class="op">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="pp">assert_eq!</span>(</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        client<span class="op">.</span>get(<span class="op">&amp;</span><span class="pp">bytes!</span>(<span class="op">&amp;</span>e<span class="op">,</span> <span class="dv">0x68656c6c6f</span>))<span class="op">,</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="pp">Identifier::</span>Account(user)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Let’s say we now want to deploy and then invoke this contract on a
+local network or futurenet, just like in this test, how would that
+work?</p>
+<h1
+id="futurenetstandalone-network-deploying-and-invoking">Futurenet/Standalone
+Network: Deploying and Invoking</h1>
+<p>Before deploying we need to build the WASM binary:</p>
+<pre><code>  cargo +nightly build \
+    --target wasm32-unknown-unknown \
+    --release \
+    -Z build-std=std,panic_abort \
+    -Z build-std-features=panic_immediate_abort</code></pre>
+<p>We can now deploy the WASM binary:</p>
+<pre><code>  &gt; soroban deploy \
+--wasm target/wasm32-unknown-unknown/release/test_soroban_cli_futurenet.wasm --secret-key DEPLOYER_SECRET --rpc-url http://INSTANCE_HOST:8000/soroban/rpc --network-passphrase &#39;Standalone Network ; February 2017&#39;
+
+output:
+CONTRACT_ID</code></pre>
+<h2 id="invoking-changeux5fval">Invoking change_val</h2>
+<p>Now that we have the contract ID, we can invoke the
+<code>change_val</code> function:</p>
+<pre><code>  soroban invoke \
+  --id CONTRACT_ID \
+  --secret-key INVOKER_SECRET \
+  --rpc-url http://INSTANCE_HOST:8000/soroban/rpc \
+  --network-passphrase &#39;Standalone Network ; February 2017&#39; \
+  --fn change_val --arg &quot;48656c6c6f20576f726c64&quot;\
+  --arg &#39;{&quot;object&quot;:{&quot;vec&quot;:[{&quot;symbol&quot;:&quot;Account&quot;},{&quot;object&quot;:{&quot;accountId&quot;:{&quot;publicKeyTypeEd25519&quot;:&quot;5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d&quot;}}}]}}&#39;
+
+output:
+  success
+  null</code></pre>
+<p>The only thing that is not straightforward here is the last argument,
+the <code>Identifier</code>. How do we go from a stellar public key like
+GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR, to
+<code>{"object":{"vec":</code><span><code>[</code></span><code>{"symbol":"Account"},{"object":{"accountId":{"publicKeyTypeEd25519":"5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d"}}}</code><span><code>]</code></span><code>}}</code>?</p>
+<p>The first thing to think of is going from
+GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR to
+5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d: since
+stellar keys are strencoded, we need to strdecode it and then turn the
+obtained buffer into a hex string. To strdecode
+GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR we can use the
+<code>rs-stellar-strkey</code> crate.</p>
+<pre><code>use stellar_strkey::*;
+
+fn test_strkey_decode() {
+    std::println!(
+        &quot;{:?}&quot;,
+        Strkey::from_string(&quot;GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR&quot;)
+    );
+}</code></pre>
+<p>This will return a buffer:</p>
+<pre><code>  Ok(PublicKeyEd25519(StrkeyPublicKeyEd25519([91, 170, 143, 26, 117, 38, 38, 141, 31, 175, 244, 176, 65, 119, 128, 10, 91, 50, 63, 0, 188, 61, 39, 251, 108, 51, 131, 62, 16, 208, 81, 141])))</code></pre>
+<p>Now we can use this simple <a
+href="https://go.dev/play/p/z3yJPp72K8B">script</a> to turn this buffer
+into a hex string, which returns
+<code>Encoded Hex String:  5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d</code>.</p>
+<p>Now that we know what is the id, we need to construct a valid type
+using the CLI’s JSON specification for XDR conversion.</p>
+<p>We need to transform <code>Identifier::Account(account_id)</code>
+into a valid parseable JSON. By default, enums are objects that contain
+an array of length 1 which contains the symbol containing the enum’s
+variant name. So if we had something like
+<code>Identifier::Account</code>, it would become
+<code>{"object":{"vec":</code><span><code>[</code></span><code>{"symbol":"Account"}</code><span><code>]</code></span><code>}}</code>.
+But in our case, we need to represent a tuple variant, so the array will
+have a length of two: first the symbol with the variant name, and then
+the value of the tuple. Given that an <code>AccountId</code> looks like
+this:
+<code>{"object":{"accountId":{"publicKeyTypeEd25519":"id"}}}</code>, the
+<code>Identifier::Account(AccountId)</code> variant will look like
+this:</p>
+<pre><code>{
+  &quot;object&quot;: {
+    &quot;vec&quot;: [
+      {
+        &quot;symbol&quot;: &quot;Account&quot;
+      },
+      {
+        &quot;object&quot;: {
+          &quot;accountId&quot;: {
+            &quot;publicKeyTypeEd25519&quot;: ID
+          }
+        }
+      }
+    ]
+  }
+}</code></pre>
+<p>So we just replace ID with the previously obtained hex value and we
+are golden! Also note that we pass bytes with a hex string (which is
+easier to share).</p>
+<h2 id="invoking-get">Invoking get</h2>
+<p>Invoking get is very simple:</p>
+<pre><code>soroban invoke \                                        
+  --id dbaf122037cfe68a0d47345efa8480bfbe05c0a31a48bb9f6ca63b5508a338c0 \
+  --secret-key SECRET \
+  --rpc-url http://INSTANCE_HOST:8000/soroban/rpc \
+  --network-passphrase &#39;Standalone Network ; February 2017&#39; \
+  --fn get --arg &quot;48656c6c6f20576f726c64&quot;   
+
+output:
+  success
+  [&quot;Account&quot;,&quot;GBN2VDY2OUTCNDI7V72LAQLXQAFFWMR7AC6D2J73NQZYGPQQ2BIY2O7X&quot;]</code></pre>
+<h1 id="the-invoker-signature">The invoker signature</h1>
+<p>What if our contract had a function that does the same thing as
+<code>change_val</code> but relies on a <code>Signature</code> rather
+than on the invoker? That way anyone with a valid signature can invoke
+the function without the need of being the invoker:</p>
+<pre><code>#![no_std]
+use soroban_auth::{verify, Identifier, Signature};
+use soroban_sdk::{contractimpl, symbol, AccountId, Address, Bytes, Env};
+
+pub struct ExampleContract;
+
+#[contractimpl]
+impl ExampleContract {
+    pub fn use_sig(e: Env, sig: Signature, key: Bytes, value: Identifier) {
+        let stored_addr = e
+            .data()
+            .get(key.clone())
+            .unwrap_or_else(|| Ok(Identifier::Contract(e.current_contract())))
+            .unwrap();
+
+        if stored_addr == Identifier::Contract(e.current_contract()) {
+            e.data().set(key, value);
+        } else {
+            if stored_addr != sig.identifier(&amp;e) {
+                panic!(&quot;you are not allowed to change this value&quot;)
+            }
+
+            verify(&amp;e, &amp;sig, symbol!(&quot;change&quot;), (key.clone(), value.clone()));
+
+            e.data().set(key, value)
+        }
+    }
+}
+
+#[cfg(test)]
+mod test;
+</code></pre>
+<p>Here what happens is that the fn takes one parameter more, which is
+the signature, then asserts that the identifier of the signature is in
+fact the identifier we want to modify, and lastly verifies that the
+signature is indeed correct.</p>
+<p>A working test looks like this:</p>
+<pre><code>#[test]
+fn test_use_sig() {
+    let e = Env::default();
+
+    let user = e.accounts().generate();
+
+    let contract_id = e.register_contract(None, ExampleContract);
+    let client = ExampleContractClient::new(&amp;e, &amp;contract_id);
+
+    client.with_source_account(&amp;user).use_sig(
+        &amp;soroban_auth::Signature::Invoker,
+        &amp;bytes!(&amp;e, 0x68656c6c6f),
+        &amp;Identifier::Account(user.clone()),
+    );
+
+    assert_eq!(
+        client.get(&amp;bytes!(&amp;e, 0x68656c6c6f)),
+        Identifier::Account(user)
+    )
+}</code></pre>
+<p>How would we invoke such a function from the CLI? The challenge is
+that we need to pass <code>Signature::Invoker</code>, fortunately, if
+you paid attention in the invoking <code>change_val</code> paragraph,
+you should be able to do this. In fact, since
+<code>Signature::Invoker</code> in a unit variant, we can simply write
+it like this:
+<code>{"object":{"vec":</code><span><code>[</code></span><code>{"symbol":"Invoker"}</code><span><code>]</code></span><code>}}</code>:</p>
+<pre><code>soroban invoke \
+  --id 2857ffc7348724e4edc257073ac30ff75613225b67c9cfe5b949c6b8d368e8ad \
+  --secret-key SECRET \
+  --rpc-url http://INSTANCE_HOST:8000/soroban/rpc \
+  --network-passphrase &#39;Standalone Network ; February 2017&#39; \
+  --fn use_sig --arg &#39;{&quot;object&quot;:{&quot;vec&quot;:[{&quot;symbol&quot;:&quot;Invoker&quot;}]}}&#39; --arg &quot;48656c6c6f20576f726c64&quot;\
+  --arg &#39;{&quot;object&quot;:{&quot;vec&quot;:[{&quot;symbol&quot;:&quot;Account&quot;},{&quot;object&quot;:{&quot;accountId&quot;:{&quot;publicKeyTypeEd25519&quot;:&quot;5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d&quot;}}}]}}&#39;</code></pre>
+<h1 id="conclusion">Conclusion</h1>
+<p>I hope this was a good way of showcasing the basics behind almost
+evreything CLI-related: deploying, simple invocations, custom structures
+and simple authentication. If you have any questions or notice any bugs
+please open an issue on this repo.</p>
