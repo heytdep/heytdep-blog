@@ -1,35 +1,38 @@
+\documentclass[10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, filecolor=magenta, urlcolor=cyan,}
+\urlstyle{same}
+
+\title{Soroban CLI basics: deployment, playing with more complex invocations, and signatures}
+
+\author{}
+\date{}
+
+
 \begin{document}
-\usepackage{listings}
-
-\section{Soroban CLI basics: deployment, playing with more complex invocations, and signatures}\label{soroban-cli-basics-deployment-playing-with-more-complex-invocations-and-signatures}
-
-\section{Introduction}\label{introduction}
-
+\maketitle
+\section*{Introduction}
 If you have already tried out soroban, you are probably already familiar with Rust tests. While tests are a good way of simulating scenarios, when it comes down to actually deploying and invoking a contract you'll have to leave the comfort of Rust tests and learn how the soroban CLI works. In this simple tutorial, I'll cover some of the basics of the Soroban CLI.
 
-\section{Writing a simple contract}\label{writing-a-simple-contract}
-
+\section*{Writing a simple contract}
 For this article, I have created a contract that is simple but that is also a good example for explaining stuff like passing custom types to the CLI.
 
 So what does this contract do?
 
-\subsubsection{Contract workflow}\label{contract-workflow}
-
+\subsection*{Contract workflow}
 The contract has two functions:
 
 \begin{itemize}
-\tightlist
-\item
-  \texttt{change\_val(key:\ Bytes,\ value:\ Address)}, which creates or modifies a contract data entry that has \texttt{Bytes} as key, and an \texttt{Address} as value. Additionally, the value for the key can only be modified if the invoker is the address in stored as the value.
-\item
-  \texttt{get(key:\ Bytes)}, which is a simple getter which returns the address associated with the provided \texttt{key}.
+  \item \texttt{change\_val(key: Bytes, value: Address)}, which creates or modifies a contract data entry that has \texttt{Bytes} as key, and an \texttt{Address} as value. Additionally, the value for the key can only be modified if the invoker is the address in stored as the value.
+  \item \texttt{get(key: Bytes)}, which is a simple getter which returns the address associated with the provided \texttt{key}.
 \end{itemize}
 
-\subsection{Writing the contract}\label{writing-the-contract}
-
+\section*{Writing the contract}
 Assuming that you are already familiar with the basics of Soroban smart contracts and remembering what we said in the contract's workflow, you should be able to understand the following code:
 
-\begin{lstlisting}[breaklines, language=Rust]
+\begin{verbatim}
 #![no_std]
 use soroban_auth::{verify, Identifier, Signature};
 use soroban_sdk::{contractimpl, symbol, AccountId, Address, Bytes, Env};
@@ -72,11 +75,11 @@ impl ExampleContract {
 #[cfg(test)]
 mod test;
 
-\end{lstlisting}
-   
+\end{verbatim}
+
 Below is a successful invocation made with unit testing:
 
-\begin{lstlisting}[breaklines, language=Rust]
+\begin{verbatim}
 #[test]
 fn test_change_val() {
     let e = Env::default();
@@ -96,40 +99,36 @@ fn test_change_val() {
         Identifier::Account(user)
     )
 }
-\end{lstlisting}
-   
+\end{verbatim}
 
 Let's say we now want to deploy and then invoke this contract on a local network or futurenet, just like in this test, how would that work?
 
-\section{Futurenet/Standalone Network: Deploying and Invoking}\label{futurenetstandalone-network-deploying-and-invoking}
-
+\section*{Futurenet/Standalone Network: Deploying and Invoking}
 Before deploying we need to build the WASM binary:
 
-\begin{lstlisting}
-  cargo +nightly build \
+\begin{verbatim}
+cargo +nightly build \
     --target wasm32-unknown-unknown \
     --release \
     -Z build-std=std,panic_abort \
     -Z build-std-features=panic_immediate_abort
-\end{lstlisting}
-   
+\end{verbatim}
 
 We can now deploy the WASM binary:
 
-\begin{lstlisting}
-  > soroban deploy \
+\begin{verbatim}
+> soroban deploy \
 --wasm target/wasm32-unknown-unknown/release/test_soroban_cli_futurenet.wasm --secret-key DEPLOYER_SECRET --rpc-url http://INSTANCE_HOST:8000/soroban/rpc --network-passphrase 'Standalone Network ; February 2017'
 
 output:
 CONTRACT_ID
-\end{lstlisting}
+\end{verbatim}
 
-\subsection{Invoking change\_val}\label{invoking-changeux5fval}
-
+\section*{Invoking change\_val}
 Now that we have the contract ID, we can invoke the \texttt{change\_val} function:
 
-\begin{lstlisting}
-  soroban invoke \
+\begin{verbatim}
+soroban invoke \
   --id CONTRACT_ID \
   --secret-key INVOKER_SECRET \
   --rpc-url http://INSTANCE_HOST:8000/soroban/rpc \
@@ -140,13 +139,14 @@ Now that we have the contract ID, we can invoke the \texttt{change\_val} functio
 output:
   success
   null
-\end{lstlisting}
+\end{verbatim}
 
-The only thing that is not straightforward here is the last argument, the \texttt{Identifier}. How do we go from a stellar public key like GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR, to \texttt{\{"object":\{"vec":{[}\{"symbol":"Account"\},\{"object":\{"accountId":\{"publicKeyTypeEd25519":"5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d"\}\}\}{]}\}\}}?
+The only thing that is not straightforward here is the last argument, the \texttt{Identifier}. How do we go from a stellar public key like GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR, to \texttt{\{"object":\{"vec":[\{"symbol":"Account"\},\{"object":\{"accountId":\{"publicKeyTypeEd25519":"5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d"\}\}\}]\}\}}?
 
-The first thing to think of is going from GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR to 5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d: since stellar keys are strencoded, we need to strdecode it and then turn the obtained buffer into a hex string. To strdecode GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR we can use the \texttt{rs-stellar-strkey} crate.
+The first thing to think of is going from GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR to 5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d: since stellar keys are strencoded, we need to strdecode it and then turn the obtained buffer into a hex string.\\
+To strdecode GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR we can use the \texttt{rs-stellar-strkey} crate.
 
-\begin{lstlisting}
+\begin{verbatim}
 use stellar_strkey::*;
 
 fn test_strkey_decode() {
@@ -155,21 +155,17 @@ fn test_strkey_decode() {
         Strkey::from_string("GAVZ3QP2PV2ZXOM72C5VQYTSOO4YCQLS3VXQBERL337OUDOKUFMUFOVR")
     );
 }
-\end{lstlisting}
+\end{verbatim}
 
-This will return a buffer:
+This will return a buffer: \texttt{Ok(PublicKeyEd25519(StrkeyPublicKeyEd25519([91, 170, 143, 26, 117, 38, 38, 141, 31, 175, 244, 176, 65, 119, 128, 10, 91, 50, 63, 0, 188, 61, 39, 251, 108, 51, 131, 62, 16, 208, 81, 141])))}.
 
-\begin{lstlisting}
-  Ok(PublicKeyEd25519(StrkeyPublicKeyEd25519([91, 170, 143, 26, 117, 38, 38, 141, 31, 175, 244, 176, 65, 119, 128, 10, 91, 50, 63, 0, 188, 61, 39, 251, 108, 51, 131, 62, 16, 208, 81, 141])))
-\end{lstlisting}
-
-Now we can use this simple \href{https://go.dev/play/p/z3yJPp72K8B}{script} to turn this buffer into a hex string, which returns \texttt{Encoded\ Hex\ String:\ \ 5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d}.
+Now we can use this simple \href{https://go.dev/play/p/z3yJPp72K8B}{script} to turn this buffer into a hex string, which returns \texttt{Encoded Hex String: 5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d}.
 
 Now that we know what is the id, we need to construct a valid type using the CLI's JSON specification for XDR conversion.
 
-We need to transform \texttt{Identifier::Account(account\_id)} into a valid parseable JSON. By default, enums are objects that contain an array of length 1 which contains the symbol containing the enum's variant name. So if we had something like \texttt{Identifier::Account}, it would become \texttt{\{"object":\{"vec":{[}\{"symbol":"Account"\}{]}\}\}}. But in our case, we need to represent a tuple variant, so the array will have a length of two: first the symbol with the variant name, and then the value of the tuple. Given that an \texttt{AccountId} looks like this: \texttt{\{"object":\{"accountId":\{"publicKeyTypeEd25519":"id"\}\}\}}, the \texttt{Identifier::Account(AccountId)} variant will look like this:
+We need to transform \texttt{Identifier::Account(account\_id)} into a valid parseable JSON. By default, enums are objects that contain an array of length 1 which contains the symbol containing the enum's variant name. So if we had something like \texttt{Identifier::Account}, it would become \texttt{\{"object":\{"vec":[\{"symbol":"Account"\}]\}\}}. But in our case, we need to represent a tuple variant, so the array will have a length of two: first the symbol with the variant name, and then the value of the tuple. Given that an \texttt{AccountId} looks like this: \texttt{\{"object":\{"accountId":\{"publicKeyTypeEd25519":"id"\}\}\}}, the \texttt{Identifier::Account(AccountId)} variant will look like this:
 
-\begin{lstlisting}
+\begin{verbatim}
 {
   "object": {
     "vec": [
@@ -186,15 +182,14 @@ We need to transform \texttt{Identifier::Account(account\_id)} into a valid pars
     ]
   }
 }
-\end{lstlisting}
+\end{verbatim}
 
 So we just replace ID with the previously obtained hex value and we are golden! Also note that we pass bytes with a hex string (which is easier to share).
 
-\subsection{Invoking get}\label{invoking-get}
-
+\section*{Invoking get}
 Invoking get is very simple:
 
-\begin{lstlisting}
+\begin{verbatim}
 soroban invoke \                                        
   --id dbaf122037cfe68a0d47345efa8480bfbe05c0a31a48bb9f6ca63b5508a338c0 \
   --secret-key SECRET \
@@ -205,13 +200,12 @@ soroban invoke \
 output:
   success
   ["Account","GBN2VDY2OUTCNDI7V72LAQLXQAFFWMR7AC6D2J73NQZYGPQQ2BIY2O7X"]
-\end{lstlisting}
+\end{verbatim}
 
-\section{The invoker signature}\label{the-invoker-signature}
+\section*{The invoker signature}
+What if our contract had a function that does the same thing as \texttt{change\_val} but relies on a \texttt{Signature} rather than on the invoker? That way anyone with a valid signature can invoke the function without the need of being the invoker (note that for simplicity we are not using the nonce, which prevents from re-using this signature, to implement the nonce just add a \texttt{BigInt} in the signature args and match it against a saved nonce for the signature identifier):
 
-What if our contract had a function that does the same thing as \texttt{change\_val} but relies on a \texttt{Signature} rather than on the invoker? That way anyone with a valid signature can invoke the function without the need of being the invoker:
-
-\begin{lstlisting}
+\begin{verbatim}
 #![no_std]
 use soroban_auth::{verify, Identifier, Signature};
 use soroban_sdk::{contractimpl, symbol, AccountId, Address, Bytes, Env};
@@ -244,14 +238,13 @@ impl ExampleContract {
 #[cfg(test)]
 mod test;
 
-\end{lstlisting}
-
+\end{verbatim}
 
 Here what happens is that the fn takes one parameter more, which is the signature, then asserts that the identifier of the signature is in fact the identifier we want to modify, and lastly verifies that the signature is indeed correct.
 
 A working test looks like this:
 
-\begin{lstlisting}
+\begin{verbatim}
 #[test]
 fn test_use_sig() {
     let e = Env::default();
@@ -272,11 +265,11 @@ fn test_use_sig() {
         Identifier::Account(user)
     )
 }
-\end{lstlisting}
+\end{verbatim}
 
-How would we invoke such a function from the CLI? The challenge is that we need to pass \texttt{Signature::Invoker}, fortunately, if you paid attention in the invoking \texttt{change\_val} paragraph, you should be able to do this. In fact, since \texttt{Signature::Invoker} in a unit variant, we can simply write it like this: \texttt{\{"object":\{"vec":{[}\{"symbol":"Invoker"\}{]}\}\}}:
+How would we invoke such a function from the CLI? The challenge is that we need to pass \texttt{Signature::Invoker}, fortunately, if you paid attention in the invoking \texttt{change\_val} paragraph, you should be able to do this. In fact, since \texttt{Signature::Invoker} in a unit variant, we can simply write it like this: \texttt{\{"object":\{"vec":[\{"symbol":"Invoker"\}]\}\}}:
 
-\begin{lstlisting}
+\begin{verbatim}
 soroban invoke \
   --id 2857ffc7348724e4edc257073ac30ff75613225b67c9cfe5b949c6b8d368e8ad \
   --secret-key SECRET \
@@ -284,10 +277,10 @@ soroban invoke \
   --network-passphrase 'Standalone Network ; February 2017' \
   --fn use_sig --arg '{"object":{"vec":[{"symbol":"Invoker"}]}}' --arg "48656c6c6f20576f726c64"\
   --arg '{"object":{"vec":[{"symbol":"Account"},{"object":{"accountId":{"publicKeyTypeEd25519":"5baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d"}}}]}}'
-\end{lstlisting}
+\end{verbatim}
 
-\section{Conclusion}\label{conclusion}
+\section*{Conclusion}
+I hope this was a good way of showcasing the basics behind almost evreything CLI-related: deploying, simple invocations, custom structures and  simple authentication. If you have any questions or notice any bugs please open an issue on this repo.
 
-I hope this was a good way of showcasing the basics behind almost evreything CLI-related: deploying, simple invocations, custom structures and simple authentication. If you have any questions or notice any bugs please open an issue on this repo.
 
 \end{document}
