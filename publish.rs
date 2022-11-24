@@ -98,33 +98,51 @@ document.body.appendChild(post);
 fn to_html_pd(name: String) {
     let splitted: &Vec<&str> = &name.split(".").collect();
     let dir_name = splitted[0];
-
+    let ext_name = splitted[1];
     let mut child1 = Command::new("mkdir")
         .arg(format!("./comp_posts/{}", &dir_name))
         .spawn()
         .expect("failed to compile");
     let _result1 = child1.wait().unwrap();
 
-    let mut child = Command::new("pandoc")
-        .arg("-f")
-        .arg("latex")
-        .arg("-t")
-        .arg("html")
-        .arg(format!("./drafts/{}", name))
-        .arg("-o")
-        .arg(format!("./comp_posts/{}/index.html", &dir_name))
-        .output()
-        .expect("failed to compile");
-    //    let result = child.wait().unwrap();
-    let mut out = String::new();
-    out.push_str(match str::from_utf8(&child.stdout) {
-        Ok(val) => val,
-        Err(_) => panic!("got non UTF-8 data from git"),
-    });
+    if ext_name == "tex" {
+        let mut child = Command::new("pandoc")
+            .arg("-f")
+            .arg("latex")
+            .arg("-t")
+            .arg("html")
+            .arg(format!("./drafts/{}", name))
+            .arg("-o")
+            .arg(format!("./comp_posts/{}/index.html", &dir_name))
+            .output()
+            .expect("failed to compile");
+        //    let result = child.wait().unwrap();
+        //        let mut out = String::new();
+        //        out.push_str(match str::from_utf8(&child.stdout) {
+        //            Ok(val) => val,
+        //            Err(_) => panic!("got non UTF-8 data from git"),
+        //        });
+    } else {
+        let mut child = Command::new("pandoc")
+            .arg("-f")
+            .arg("markdown")
+            .arg("-t")
+            .arg("html")
+            .arg(format!("./drafts/{}", name))
+            .arg("-o")
+            .arg(format!("./comp_posts/{}/index.html", &dir_name))
+            .output()
+            .expect("failed to compile");
+        //    let result = child.wait().unwrap();
+        //        let mut out = String::new();
+        //        out.push_str(match str::from_utf8(&child.stdout) {
+        //            Ok(val) => val,
+        //            Err(_) => panic!("got non UTF-8 data from git"),
+        //        });
+    }
+    build_handler(name);
 
     //    fs::write(format!("./comp_posts/{}/index.html", &dir_name), out);
-
-    build_handler(name);
 }
 
 fn to_html(name: String) {

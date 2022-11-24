@@ -16,13 +16,13 @@ h3 {
 
 
 :root {
-  --color-anchor: #77e1cd;
-  --color-bg: #0b1423;
-  --color-blockquote-text: #cdcdcd;
-  --color-code-bg: #000;
+  --color-anchor: #337ab7;
+  --color-bg: #fff;
+  --color-blockquote-text: #000;
+  --color-code-bg: #c2c2c2;
   --color-code-text: #333;
   --color-divider: #000;
-  --color-heading: #fff;
+  --color-heading: #000;
   --color-table-border: #c2c2c2;
   --color-table-row-even: #000;
   --color-table-row-header: #000;
@@ -108,7 +108,9 @@ ul {
 
 .math {
     font-size: 13px;
-    background: #000;
+    background: #cdcdcd;
+    padding: 3px;
+    border-radius: 2px;
 }
 
 #post {
@@ -149,7 +151,7 @@ pre {
 }
 
 code {
-    background-color: #000;
+    background-color: #cdcdcd;
     padding: 2px;
     border-radius: 5px
 }
