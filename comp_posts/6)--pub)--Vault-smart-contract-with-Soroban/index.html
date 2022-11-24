@@ -19,17 +19,6 @@ withdraw shares, all while enforcing composability.</p>
 <p>This article will also make use of basic financial maths, luckily
 this blog post was written in LaTeX, so we can enjoy equations with a
 pleasant interface.</p>
-<p>As I mentioned, the contract will try to enforce high composability
-standards, so that it can be used by other contracts very easily, that
-is why some concepts such as vault admins and not needing deposit
-confirmation to mint shares to a user may sound strange, but I’ll try to
-explain them here. The contract will have an admin which has to be the
-invoker of the contract functions. For instance, if Bob wants to deposit
-to the vault, he calls contract <span
-class="math inline"><em>c</em><em>o</em><em>n</em><em>t</em><em>r</em><em>a</em><em>c</em><em>t</em>(<em>a</em><em>r</em><em>g</em><em>s</em>)</span>
-which makes sure Bob has deposited funds into the vault, and then being
-the admin of the vault calls our vault contract <span
-class="math inline"><em>v</em><em>a</em><em>u</em><em>l</em><em>t</em>(<em>a</em><em>r</em><em>g</em><em>s</em>)</span>.</p>
 <h1 id="setup">Setup</h1>
 <p>Assuming you have followed the instructions to <a
 href="https://www.rust-lang.org/tools/install">install Rust</a>, you can
@@ -121,14 +110,6 @@ the amount of vault shares each user holds</p></li>
 <li><p>the admin’s <code>Nonce</code>, a cryptographic value that we use
 in contracts to avoid some actions to be repeated.</p></li>
 </ul>
-<p>I have also added a struct to wrap the auth (signature and
-nonce):</p>
-<pre><code>#[derive(Clone)]
-#[contracttype]
-pub struct Auth {
-    pub sig: Signature,
-    pub nonce: BigInt,
-}</code></pre>
 <h2 id="data-helpers">Data Helpers</h2>
 <p>Below I defined some functions to help me when working with contract
 data operations (setting and reading data):</p>
@@ -177,6 +158,7 @@ defined two functions that achieve this behavior:</p>
     token::Client::new(e, contract_id).balance(&amp;get_contract_id(e))
 }
 
+// we are going to use this to transfer out of the vault
 fn transfer(e: &amp;Env, to: Identifier, amount: BigInt) {
     let client = token::Client::new(e, get_token_id(e));
     client.xfer(
@@ -185,14 +167,33 @@ fn transfer(e: &amp;Env, to: Identifier, amount: BigInt) {
         &amp;to,
         &amp;amount,
     );
+}
+
+// we are going to use this to transfer funds in the vault
+fn transfer_in_vault(e: &amp;Env, from: Identifier, amount: BigInt) {
+    let client = token::Client::new(e, get_token_id(e));
+    let vault_id = get_contract_id(e);
+
+    client.xfer_from(
+        &amp;Signature::Invoker,
+        &amp;BigInt::zero(&amp;e),
+        &amp;from,
+        &amp;vault_id,
+        &amp;amount,
+    )
 }</code></pre>
 <p>Remember that we are getting the token to transfer and to check the
 balance from thanks to the <code>get_token_id()</code> function we
 defined previously.</p>
+<p>Notice also that the <code>transfer_in_vault()</code> function uses
+the <code>token.xfer_from()</code> method, which allows the contract to
+tranfer funds from another account as long as such account has allowed
+the contract to do so.</p>
 <h2 id="admin-management">Admin management</h2>
 <p>Below are the data functions that take care of managing the admin for
-the vault, these are almost standard in most of soroban examples as of
-now:</p>
+the vault (which simply has to initiate the contract by setting the
+vault token), these are almost standard in most of soroban examples as
+of now:</p>
 <pre><code>fn has_administrator(e: &amp;Env) -&gt; bool {
     let key = DataKey::Admin;
     e.data().has(key)
@@ -207,13 +208,7 @@ fn write_administrator(e: &amp;Env, id: Identifier) {
     let key = DataKey::Admin;
     e.data().set(key, id);
 }
-
-pub fn check_admin(e: &amp;Env, auth: &amp;Signature) {
-    let auth_id = auth.identifier(e);
-    if auth_id != read_administrator(e) {
-        panic!(&quot;not authorized by admin&quot;)
-    }
-}</code></pre>
+</code></pre>
 <h2 id="nonce-management">Nonce management</h2>
 <p>Below are the data functions that take care of reading and updating
 the nonce once read, these are also standard for most soroban
@@ -260,10 +255,10 @@ on top of each function describe what the function does):</p>
     fn nonce(e: Env) -&gt; BigInt;
 
     // deposit shares into the vault: mints the vault shares to &quot;from&quot;
-    fn deposit(e: Env, auth: Auth, from: Identifier, amount: BigInt);
+    fn deposit(e: Env, from: Identifier, amount: BigInt);
 
     // withdraw an ammount of the vault&#39;s token id to &quot;to&quot; by burning shares
-    fn withdraw(e: Env, auth: Auth, to: Identifier, shares: BigInt);
+    fn withdraw(e: Env, to: Identifier, shares: BigInt);
 
     // get vault shares for a user
     fn get_shares(e: Env, id: Identifier) -&gt; BigInt;
@@ -289,9 +284,8 @@ impl VaultContractTrait for VaultContract {
         read_nonce(&amp;e, &amp;read_administrator(&amp;e))
     }
 
-    fn deposit(e: Env, admin_auth: Auth, from: Identifier, amount: BigInt) {
-        check_admin(&amp;e, &amp;admin_auth.sig);
-        verify_and_consume_nonce(&amp;e, &amp;admin_auth.sig, &amp;admin_auth.nonce);
+    fn deposit(e: Env, from: Identifier, amount: BigInt) {
+        transfer_in_vault(&amp;e, from.clone(), amount.clone());
 
         let tot_supply = get_tot_supply(&amp;e);
 
@@ -311,10 +305,7 @@ impl VaultContractTrait for VaultContract {
             .unwrap()
     }
 
-    fn withdraw(e: Env, admin_auth: Auth, to: Identifier, shares: BigInt) {
-        check_admin(&amp;e, &amp;admin_auth.sig);
-        verify_and_consume_nonce(&amp;e, &amp;admin_auth.sig, &amp;admin_auth.nonce);
-
+    fn withdraw(e: Env, to: Identifier, shares: BigInt) {
         let tot_supply = get_tot_supply(&amp;e);
         let amount = (shares.clone() * get_token_balance(&amp;e)) / tot_supply;
 
@@ -331,10 +322,12 @@ vault contract already has an administrator, if not we are adding one
 along with the token to use in the vault (the token id is an array of 32
 bytes).</p>
 <h3 id="deposit-shares-minting">deposit: shares minting</h3>
-<p>The deposit first checks if the invoker is actually the contract
-admin through the <code>check_admin</code> function (and it updates the
-noce). Then it calculates the amount of shares to mint, which respects
-the following equation:</p>
+<p>The deposit first transfers funds from the user invoking it to the
+vault through the <code>transfer_in_vault</code> function (it assumes
+that the user already has allowed the contract to do so as we will see
+when testing the contract, if not this function will panic). Then it
+calculates the amount of shares to mint, which respects the following
+equation:</p>
 <p><span
 class="math inline">(<em>S</em>+<em>s</em>) ÷ <em>S</em> = (<em>a</em>+<em>B</em>) ÷ <em>B</em></span></p>
 <p>where S is the total supply, s is the amount of shares to mint, a is
@@ -365,10 +358,8 @@ can define under our helper functions section:</p>
 <p>Here we are simply updating the user’s vault share balance and the
 total supply.</p>
 <h3 id="withdraw">withdraw</h3>
-<p>Withdrawing follows a similar workflow as depositing: first checks
-the admin is invoking the contract (and updating the nonce), then
-calculating the amount of tokens to send to the user with the following
-equation:</p>
+<p>Withdrawing first calculates the amount of tokens to send to the user
+with the following equation:</p>
 <p><span
 class="math display">(<em>S</em>−<em>s</em>) ÷ <em>S</em> = (<em>B</em>−<em>a</em>) ÷ <em>B</em></span></p>
 <p>Which we simplify into:</p>
@@ -383,19 +374,21 @@ class="math display"><em>B</em><em>s</em> = <em>a</em><em>S</em></span>
  </p>
 <p><span
 class="math display"><em>a</em> = <em>B</em><em>s</em> ÷ <em>S</em></span></p>
-<p>Thus <code>(shares * vault token balance) / tot_supply</code>.
-Lastly, we are calling a <code>burn_shares</code> function, which we can
-define right below the <code>mint_shares</code> function:</p>
+<p>Thus <code>(shares * vault token balance) / tot_supply</code>. Then,
+we are calling a <code>burn_shares</code> function, which we can define
+right below the <code>mint_shares</code> function:</p>
 <pre><code>fn burn_shares(e: &amp;Env, to: Identifier, shares: BigInt) {
     let tot_supply = get_tot_supply(e);
     let id_balance = get_id_balance(e, to.clone());
 
-    assert!(shares &lt; id_balance); // asserting that user is not trying to burn more than he has
+    assert!(shares &lt;= id_balance); // asserting that user is not trying to burn more than he has
 
     put_tot_supply(e, tot_supply - shares.clone());
     put_id_balance(e, to, id_balance - shares);
 }
 </code></pre>
+<p>Note that we use an assertion to ensure that the user isn’t
+withdrawing more than he already has.</p>
 <h3 id="getters">getters</h3>
 <p>The nonce and <code>get_balance</code> fns are simple getters that
 simply read data from the contract and extern it to the invocation.</p>
@@ -419,10 +412,10 @@ invoking it.</p>
 our crate:</p>
 <pre><code>#![cfg(any(test, feature = &quot;testutils&quot;))]
 
-use crate::{Auth, VaultContractClient};
-use soroban_auth::{Identifier, Signature};
+use crate::VaultContractClient;
+use soroban_auth::Identifier;
 
-use soroban_sdk::{AccountId, BigInt, BytesN, Env};
+use soroban_sdk::{BigInt, BytesN, Env};
 
 pub fn register_test_contract(e: &amp;Env, contract_id: &amp;[u8; 32]) {
     let contract_id = BytesN::from_array(e, contract_id);
@@ -438,8 +431,7 @@ the client we imported from the crate root, then write a
 struct, and finally write all the implementations that invoke the
 contract functions in the <code>VaultContractTrait</code> through the
 <code>VaultContractClient</code>:</p>
-<pre><code>
-pub struct VaultContract {
+<pre><code>pub struct VaultContract {
     env: Env,
     contract_id: BytesN&lt;32&gt;,
 }
@@ -465,39 +457,28 @@ impl VaultContract {
         self.client().nonce()
     }
 
-    pub fn deposit(&amp;self, admin: AccountId, from: Identifier, amount: BigInt) {
-        self.env.set_source_account(&amp;admin);
-        self.client().deposit(
-            &amp;Auth {
-                sig: Signature::Invoker,
-                nonce: BigInt::zero(&amp;self.env),
-            },
-            &amp;from,
-            &amp;amount,
-        )
+    pub fn deposit(&amp;self, from: Identifier, amount: BigInt) {
+        self.client().deposit(&amp;from, &amp;amount)
     }
 
-    pub fn withdraw(&amp;self, admin: AccountId, to: Identifier, shares: BigInt) {
-        self.env.set_source_account(&amp;admin);
-        self.client().withdraw(
-            &amp;Auth {
-                sig: Signature::Invoker,
-                nonce: BigInt::zero(&amp;self.env),
-            },
-            &amp;to,
-            &amp;shares,
-        )
+    pub fn withdraw(&amp;self, to: Identifier, shares: BigInt) {
+        self.client().withdraw(&amp;to, &amp;shares)
     }
 
     pub fn get_shares(&amp;self, id: &amp;Identifier) -&gt; BigInt {
         self.client().get_shares(id)
     }
-}
-</code></pre>
-<p>Note that I am using <code>Signature::Invoker</code> as signature to
-pass, this means that I am passing the signature of the source account
-of the transaction, which I set to be the admin with
-<code>self.env.set_source_account(&amp;admin)</code>.</p>
+}</code></pre>
+<p>Note that all of our Authentication is implicit and doesn’t need
+further checks since:</p>
+<ul>
+<li><p>when depositing, the contract first tries to transfer in the
+vault the funds, if the user won’t allow that the contract will panic
+(thus won’t mint the shares to the user)</p></li>
+<li><p>when withdrawing, we are asserting that the user has enough vault
+shares in its balance, if not the contract will panic and won’t transfer
+any amount to the user.</p></li>
+</ul>
 <p>We are now ready to write the actual test.</p>
 <h2 id="test.rs">test.rs</h2>
 <p>The first thing we want to do in our test.rs file, is importing the
@@ -591,8 +572,8 @@ fn test() {
         &amp;BigInt::from_u32(&amp;e, 1000),
     );
 
-    // user 1 deposits 5 usdc into vault
-    usdc_token.with_source_account(&amp;user1).xfer(
+    // user 1 allows the vault to spend 5 usdc (which will be deposited in the vault)
+    usdc_token.with_source_account(&amp;user1).approve(
         &amp;Signature::Invoker,
         &amp;BigInt::zero(&amp;e),
         &amp;vault_id,
@@ -600,22 +581,24 @@ fn test() {
     );
 
     // user1 buys shares from the vault
-    vault.deposit(user1.clone(), user1_id.clone(), BigInt::from_i32(&amp;e, 5));
+    vault.deposit(user1_id.clone(), BigInt::from_i32(&amp;e, 5));
+
     assert_eq!(
         usdc_token.with_source_account(&amp;admin1).balance(&amp;user1_id),
         995
     );
     assert_eq!(vault.get_shares(&amp;user1_id), 5);
 
-    // user 2 deposits 8 usdc into vault
-    usdc_token.with_source_account(&amp;user2).xfer(
+    // user 2 allows the vault to spend 8 usdc (which will be deposited in the vault)
+    usdc_token.with_source_account(&amp;user2).approve(
         &amp;Signature::Invoker,
         &amp;BigInt::zero(&amp;e),
         &amp;vault_id,
         &amp;BigInt::from_u32(&amp;e, 8),
     );
+
     // user2 buys shares from the vault
-    vault.deposit(user1.clone(), user2_id, BigInt::from_i32(&amp;e, 8));
+    vault.deposit(user2_id, BigInt::from_i32(&amp;e, 8));
 
     // the vault generates yield
     usdc_token.with_source_account(&amp;admin1).mint(
@@ -626,13 +609,14 @@ fn test() {
     );
 
     // user1 withdraws from the vault
-    vault.withdraw(user1, user1_id.clone(), BigInt::from_i32(&amp;e, 3));
+    vault.withdraw(user1_id.clone(), BigInt::from_i32(&amp;e, 3));
     assert_eq!(
         usdc_token.with_source_account(&amp;admin1).balance(&amp;user1_id),
         1001
     ); // user 1 now has 1001 USDC and still has 2 shares in the vault.
     assert_eq!(vault.get_shares(&amp;user1_id), 2);
 }
+
 </code></pre>
 <h1 id="wrapping-it-all-up">Wrapping it all up</h1>
 <p>I hope that the reader found this tutorial useful, and in order to
@@ -641,9 +625,24 @@ encountering I have published the code to a <a
 href="https://github.com/Xycloo/soroban-vault-contract">Github
 repo</a>.</p>
 <p>You can go ahead and try it out:</p>
-<pre><code>  git clone https://github.com/Xycloo/soroban-vault-token-contract
-  cd soroban-vault-contract
+<pre><code>&gt; git clone https://github.com/Xycloo/soroban-vault-token-contract
+&gt; cd soroban-vault-contract
 
-  cargo test</code></pre>
-<p><img src="sorobanvaulttest" alt="image" /></p>
+&gt; cargo test
+
+     Finished test [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (target/debug/deps/soroban_vault_contract-9f7cb3a1d823b9eb)
+
+running 1 test
+test test::test ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests soroban-vault-contract
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+  </code></pre>
 <p>The test passed, mission accomplished!</p>

@@ -161,6 +161,7 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
     );
 
     let mut li_list = String::new();
+
     posts.sort();
     let rev_posts: Vec<String> = posts.into_iter().rev().collect();
 
