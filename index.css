@@ -10,18 +10,23 @@ p, h1 {
     color: var(--color-blockquote-text)
 }
 
+h3 {
+    color: var(--color-blockquote-text)
+}
+
+
 :root {
-  --color-anchor: #337ab7;
-  --color-bg: #0D1117;
+  --color-anchor: #77e1cd;
+  --color-bg: #0b1423;
   --color-blockquote-text: #cdcdcd;
-  --color-code-bg: #f7f7f7;
+  --color-code-bg: #000;
   --color-code-text: #333;
   --color-divider: #000;
-  --color-heading: #333;
+  --color-heading: #fff;
   --color-table-border: #c2c2c2;
-  --color-table-row-even: #f0f0f0;
-  --color-table-row-header: #e8e6e6;
-  --color-table-row-odd: #fbfbfb;
+  --color-table-row-even: #000;
+  --color-table-row-header: #000;
+  --color-table-row-odd: #000;
   --color-toggle-accent: #c3a554;
   --color-text: #333;
 }
@@ -102,7 +107,8 @@ ul {
 }
 
 .math {
-    font-size: 20px;
+    font-size: 13px;
+    background: #000;
 }
 
 #post {
@@ -314,4 +320,12 @@ html.dark #doc img.invert {
 
 #color-mode-switch label:active:after {
   width: 30px;
+}
+
+.articles {
+    padding-bottom: 50px;
+}
+
+.hljs {
+    background-color: #000
 }
