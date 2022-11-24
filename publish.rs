@@ -190,7 +190,7 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
 <body>
 <div id="content">
 <div class="heading">
-<h1 class="title">0x74's website</h1>
+<h1 class="title">tdep's website</h1>
 <hr/>
 <div class="description">
 <p>This is my secondary blog and the place for personal notes, where I write about everyday code challenges, cryptography, smart contracts, and everything that is of a more intermediate/advanced level that doesn't have much traction on <a target="_blank" href="https://tdep.medium.com/">my Medium primary blog</a>. Articles with the &#128215 prefix are intended to be read by a general public, those with the &#128216 prefix are mostly personal notes.</p>

@@ -6,13 +6,17 @@ img {
     max-width: 650px;
 }
 
+p, h1 {
+    color: var(--color-blockquote-text)
+}
+
 :root {
   --color-anchor: #337ab7;
-  --color-bg: #fff;
-  --color-blockquote-text: #777;
+  --color-bg: #0D1117;
+  --color-blockquote-text: #cdcdcd;
   --color-code-bg: #f7f7f7;
   --color-code-text: #333;
-  --color-divider: #cdcdcd;
+  --color-divider: #000;
   --color-heading: #333;
   --color-table-border: #c2c2c2;
   --color-table-row-even: #f0f0f0;
@@ -139,7 +143,7 @@ pre {
 }
 
 code {
-    background-color: #F3F3F3;
+    background-color: #000;
     padding: 2px;
     border-radius: 5px
 }
