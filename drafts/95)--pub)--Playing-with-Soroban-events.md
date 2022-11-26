@@ -167,4 +167,49 @@ events: Array[1]
 
 ```
 
+You can also read the `TransactionMeta` and obtain the completely decoded event by using a stellar XDR library, for example, you could use the rs-stellar-xdr crate (from Soroban Fiddle):
+
+```rust
+let contract_events =
+    if let Ok(TransactionMeta::V3(TransactionMetaV3 { events, .. })) =
+		TransactionMeta::from_xdr_base64(RESULT_META_XDR)
+	{
+		Some(events.into())
+	} else {
+		None
+	};
+```
+
+Which corresponds to:
+
+```json
+[
+  {
+    "ext": "v0",
+    "contractId": "d37dd09bca47a5bb3033655047ff61c90ed7107ade9c632603187a9a0dd5074c",
+    "type": "contract",
+    "body": {
+      "v0": {
+        "topics": [
+          {
+            "symbol": "init"
+          }
+        ],
+        "data": {
+          "object": {
+            "vec": [
+              {
+                "object": {
+                  "bytes": "0000000400000001000000000000000200000005000000074163636f756e7400000000040000000100000007000000005baa8f1a7526268d1faff4b04177800a5b323f00bc3d27fb6c33833e10d0518d"
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+]
+```
+
 Congratulations! You have created and read your first Soroban event.
