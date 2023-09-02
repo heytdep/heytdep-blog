@@ -87,6 +87,13 @@ html, body {
 
 body {}
 
+.year {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 20px;
+  color: #444444;
+}
+
 ul {
     list-style: none;
 }
