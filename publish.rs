@@ -47,7 +47,7 @@ fn get_drafts() -> Vec<PathBuf> {
 }
 
 fn get_comp() -> Vec<PathBuf> {
-    let mut paths = fs::read_dir("./comp_posts")
+    let mut paths = fs::read_dir("./post")
         .expect("Failed to read directory")
         .map(|entry| entry.expect("Failed to read entry").path())
         .collect::<Vec<PathBuf>>();
@@ -73,13 +73,13 @@ fn get_comp() -> Vec<PathBuf> {
 fn preemptive_remove() {
     let mut child = Command::new("rm")
         .arg("-rf")
-        .arg("./comp_posts/")
+        .arg("./post/")
         .spawn()
         .expect("failed to compile");
     let _result = child.wait().unwrap();
 
     let mut child1 = Command::new("mkdir")
-        .arg("./comp_posts/")
+        .arg("./post/")
         .spawn()
         .expect("failed to compile");
     let _result = child1.wait().unwrap();
@@ -149,7 +149,7 @@ fn build_handler(name: String) {
             post_name_split[2].replace("-", " ")
         );
 
-        let mut file = File::create(format!("./comp_posts/{}/post.html", &dir_name)).unwrap();
+        let mut file = File::create(format!("./post/{}/post.html", &dir_name)).unwrap();
         file.write_all(parent.as_bytes());
     }
 }
@@ -161,7 +161,7 @@ fn to_html_pd(name: String) {
         let dir_name = splitted[0];
         let ext_name = splitted[1];
         let mut child1 = Command::new("mkdir")
-            .arg(format!("./comp_posts/{}", &dir_name))
+            .arg(format!("./post/{}", &dir_name))
             .spawn()
             .expect("failed to compile");
         let _result1 = child1.wait().unwrap();
@@ -174,7 +174,7 @@ fn to_html_pd(name: String) {
                 .arg("html")
                 .arg(format!("./drafts/{}", name))
                 .arg("-o")
-                .arg(format!("./comp_posts/{}/index.html", &dir_name))
+                .arg(format!("./post/{}/index.html", &dir_name))
                 .output()
                 .expect("failed to compile");
             //    let result = child.wait().unwrap();
@@ -191,7 +191,7 @@ fn to_html_pd(name: String) {
                 .arg("html")
                 .arg(format!("./drafts/{}", name))
                 .arg("-o")
-                .arg(format!("./comp_posts/{}/index.html", &dir_name))
+                .arg(format!("./post/{}/index.html", &dir_name))
                 .output()
                 .expect("failed to compile");
             //    let result = child.wait().unwrap();
@@ -204,14 +204,14 @@ fn to_html_pd(name: String) {
         build_handler(name);
     } else {
         let mut child1 = Command::new("mkdir")
-            .arg(format!("./comp_posts/{}", &name))
+            .arg(format!("./post/{}", &name))
             .spawn()
             .expect("failed to compile");
         let _result1 = child1.wait().unwrap();
     }
 
     
-    //    fs::write(format!("./comp_posts/{}/index.html", &dir_name), out);
+    //    fs::write(format!("./post/{}/index.html", &dir_name), out);
 }
 
 fn to_html(name: String) {
@@ -225,7 +225,7 @@ fn to_html(name: String) {
 
     let mut child1 = Command::new("mv")
         .arg(format!("./drafts/{}", dir_name))
-        .arg("./comp_posts")
+        .arg("./post")
         .spawn()
         .expect("failed to compile");
     let _result1 = child1.wait().unwrap();
@@ -267,7 +267,7 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
             li_list.push_str(&format!(
                 r#"
     <li>
-    <h3><a href="./comp_posts/{}/post.html">{}</a></h3>
+    <h3><a href="./post/{}/post.html">{}</a></h3>
     </li>
     "#,
                 &post, &dis_name
@@ -277,7 +277,7 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
                 r#"
     <li>
     
-    <h3 class="year"><strong>{}</strong></h3>
+    <h3 class="year"><p>{}</p></h3>
     
     </li>
     "#,
@@ -318,11 +318,11 @@ Articles with the &#128215 prefix are intended to be read by a general public, t
     </ul>
 </div>
 </div>
-<div class="articles"><ul>"#,
+<nav class="articles"><ul>"#,
     );
     
     ul.push_str(&li_list);
-    ul.push_str("</ul></div></div></body>");
+    ul.push_str("</ul></nav></div></body>");
 
     head.push_str(&ul);
     head

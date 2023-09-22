@@ -77,13 +77,13 @@ h1 {
 html, body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  max-width: 700px;
   margin: auto;
 }
 
 #icons ul li {
-    display: inline-block;
+  display: inline-block;
 }
+
 
 body {}
 
@@ -124,18 +124,21 @@ ul {
     width: 90%;
     margin: auto;
     padding-bottom: 4em;
+    max-width: 800px;
 }
 
 #content {
     width: 90%;
     margin: auto;
-    max-width: 600px;
 }
 
 .heading {
-    margin-top: 8em;
+  margin: auto;  
+  margin-top: 8em;
     text-align: center;
     padding-bottom: 40px;
+    max-width: 600px;
+    
 }
 
 #post h4 {
@@ -331,10 +334,46 @@ html.dark #doc img.invert {
   width: 30px;
 }
 
-.articles {
-    padding-bottom: 50px;
+nav ul {
+  justify-content: center;
+  max-width: 80%;
+  margin: auto;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr ;
+  grid-auto-flow: column;
+  grid-gap: 0px 80px; /* Adjust the gap between columns */
+}
+
+ul li {
+  width: 20em;
+  padding: 0;
+  margin: 0;
 }
 
 .hljs {
     background-color: #000
+}
+
+.year p {
+  font-weight: 900;
+  font-size: 1.4rem;
+}
+
+h3 {
+  margin: 0;
+}
+
+blockquote {
+  background-color: #e9e9e9;
+  padding: 2px;
+  border-radius: 5px;
+  margin: 0;
+  margin-block-start: 0;
+  margin-block-end: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+}
+
+blockquote p {
+  padding-left: 1rem;
 }
