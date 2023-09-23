@@ -1,3 +1,5 @@
+`22/09/2023`
+
 For those who do not know it, I've been working on a rust crate that allows for custom ingestion from a stellar core captive process. The crate is [rs-ingest](https://github.com/xycloo/rs-ingest), and even though the library is still unsafe, I tried stress testing it by catching up (almost, when talking big numbers) the whole Stellar Mainnet history, precisely up to ledger `47803575`. 
 
 # TLDR;
