@@ -89,7 +89,6 @@ body {}
 
 .year {
   margin-top: 20px;
-  margin-bottom: 8px;
   font-size: 20px;
   color: #444444;
 }
@@ -137,7 +136,7 @@ ul {
   margin-top: 8em;
     text-align: center;
     padding-bottom: 40px;
-    max-width: 600px;
+    max-width: 700px;
     
 }
 
@@ -334,9 +333,13 @@ html.dark #doc img.invert {
   width: 30px;
 }
 
+nav {
+  max-width: 750px;
+  margin: auto;
+}
+
 nav ul {
   justify-content: center;
-  max-width: 80%;
   margin: auto;
 }
 
@@ -344,7 +347,7 @@ ul li {
   padding: 10px;
 }
 
-@media (min-width:960px) {
+/*@media (min-width:960px) {
   nav ul {
     display: grid;
     grid-template-rows: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr ;
@@ -358,18 +361,23 @@ ul li {
     margin: 0;
   }
 }
-
+*/
 .hljs {
-    background-color: #000
+    background-color: #f5f9ff
 }
 
 .year p {
   font-weight: 900;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
 h3 {
   margin: 0;
+}
+
+
+h3 {
+  font-size: 1.3rem;
 }
 
 blockquote {
@@ -385,4 +393,8 @@ blockquote {
 
 blockquote p {
   padding-left: 1rem;
+}
+
+hr {
+  background-color: #adadad;
 }

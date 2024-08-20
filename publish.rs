@@ -5,6 +5,16 @@ use std::process::Command;
 use std::str;
 use std::path::PathBuf;
 
+fn rename_dir(from: &str, to: &str) {
+    let mut child = Command::new("mv")
+        .arg(format!("./post/{}", &from))
+        .arg(format!("./post/{}", &to))
+        .spawn()
+        .expect("failed to compile");
+
+    let _result = child.wait().unwrap();
+}
+
 fn extract_name_from_filename(filename: &str) -> &str {
     // Split the filename by "--" and take the second part
     let parts: Vec<&str> = filename.split("--").collect();
@@ -96,8 +106,9 @@ fn build_handler(name: String) {
     <!DOCTYPE html>
     <html class="">
     <head>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/idea.min.css">
     <link href="../../index.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{{"token": "e9adb517193447a3a9c4d5064ffa2550"}}'></script><!-- End Cloudflare Web Analytics -->
     <!-- and it's easy to individually load additional languages -->
@@ -252,6 +263,10 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
     let mut li_list = String::new();
     let mut posts: Vec<String> = posts.into_iter().rev().collect();
     for post in posts {
+        let post_href = post.split(")").collect::<Vec<&str>>()[0];
+        println!("{}", post);
+        rename_dir(&post, &post_href);
+
         let post_name_split: &Vec<&str> = &post.split(")--").collect();
         
         if post_name_split.len() != 1 {
@@ -270,7 +285,7 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
     <h3><a href="./post/{}/post.html">{}</a></h3>
     </li>
     "#,
-                &post, &dis_name
+                &post_href, &dis_name
             ))
         } else {
             li_list.push_str(&format!(
@@ -295,19 +310,14 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
 <h3>Tommaso De Ponti (@heytdep)</h3>
 
 <div class="description">
-<p>Hi I'm Tommaso, I am a developer building stuff on the Stellar Network at <a target="_blank" href="https://github.com/xycloo/">Xycloo Labs</a>, and 
-currently part-time <a href="https://stellar.org/foundation">Stellar Development Foundation</a> contractor helping to build Soroban-related educational contract-based games 
-(<a href="https://fcaooc.com/">fcaooc</a>, <a href="https://quest.stellar.org/">stellar quest</a>, <a href="https://rpciege.com/">rpciege</a>). 
-<br/><br/>
-My focus lies in decentralized ledger technology, smart contracts, Decentralized Finance, and SaaS. My preferred language is Rust,
-but I'm proficient with Javascript, Python, and I'm learning Zig (which is now becoming my second preferred lang).
-<br/><br/>
+<p>Co-founder <a target="_blank" href="https://github.com/xycloo/">Xycloo Labs</a>, part-time <a href="https://stellar.org/foundation">SDF</a> contractor. 
+Working with VMs, cloud computing infra, and blockchain.
 Articles with the &#128215 prefix are intended to be read by a general public, those with the &#128216 prefix are mostly personal notes.</p>
 
 <p>The content on this website is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
 </div>
 <br/>
-<div id="icons">
+<!--<div id="icons">
     <ul>
         <li><a target="_blank" href="https://github.com/heytdep"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
         <path
@@ -316,7 +326,8 @@ Articles with the &#128215 prefix are intended to be read by a general public, t
       </svg>
       </a></li>
     </ul>
-</div>
+</div>-->
+<hr/>
 </div>
 <nav class="articles"><ul>"#,
     );
