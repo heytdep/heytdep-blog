@@ -6,136 +6,333 @@
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{{"token": "e9adb517193447a3a9c4d5064ffa2550"}}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <style>
+:root {
+        --primary-color: #2d2d2d;
+        --secondary-color: #666;
+        --accent-color: rgb(249, 15, 18);
+        --background-color: #fff;
+        --container-width: 800px;
+    }
 
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: var(--primary-color);
+        background-color: var(--background-color);
+        padding: 2rem 1rem;
+    }
+
+    .container {
+        max-width: var(--container-width);
+        margin: 0 auto;
+    }
+
+    header {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        color: var(--secondary-color);
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .bio {
+        max-width: 600px;
+        margin: 0 auto 1.5rem;
+        line-height: 1.7;
+    }
+
+    .note {
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        margin-top: 1rem;
+    }
+
+    a {
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .social-links {
+        margin-top: 1.5rem;
+    }
+
+    .social-links a {
+        display: inline-block;
+        margin: 0 0.5rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .social-links a:hover {
+        opacity: 1;
+    }
+
+    .posts-list ul {
+        list-style: none;
+    }
+
+    .posts-list li {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    
+    .posts-list h3 {
+        font: 500 1rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    }
+
+    .posts-list h3 a {
+        text-decoration: none;
+        font-size: 1.3rem;
+        color: black
+        
+    }
+
+    .posts-list h3 a:hover {
+        color: var(--accent-color);
+    }
+
+    .year {
+        color: var(--secondary-color);
+        font-size: 1.4rem;
+        margin: 2rem 0 1rem;
+        border-bottom: none !important;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        .bio {
+            font-size: 0.95rem;
+        }
+    }
 </style>
 
 
 <body>
-<div id="content">
-<div class="heading">
+    <div class="container">
+        <header>
+            <h1 class="title">Tommaso De Ponti</h1>
+            <a href="https://x.com/heytdep" target="__blank"><div class="subtitle">@heytdep</div></a>
+            
+            <div class="bio">
+                <p>Co-founder <a target="_blank" href="https://github.com/xycloo/">Xycloo Labs</a>.</p>
+                <p>Working with VMs, cloud computing infra, and blockchain. Interested in research about VMs, validators, data ingestion, blockchain microstructure, and DeFi.</p>
+                <p class="note">Articles with the &#128215 suffix are intended for general public, 
+                   &#128216 are personal notes.</p>
+            </div>
+        </header>
 
-<h3>Tommaso De Ponti (@heytdep)</h3>
-
-<div class="description">
-<p>Co-founder <a target="_blank" href="https://github.com/xycloo/">Xycloo Labs</a>, part-time <a href="https://stellar.org/foundation">SDF</a> contractor. 
-Working with VMs, cloud computing infra, and blockchain.
-Articles with the &#128215 prefix are intended to be read by a general public, those with the &#128216 prefix are mostly personal notes.</p>
-
-<p>The content on this website is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
-</div>
-<br/>
-<!--<div id="icons">
-    <ul>
-        <li><a target="_blank" href="https://github.com/heytdep"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
-        <path
-          d="M8 .188c-4.418 0-8 3.582-8 8 0 3.535 2.291 6.527 5.471 7.594.4.074.547-.174.547-.384 0-.191-.007-.876-.012-1.589-2.227.485-2.695-1.061-2.695-1.061-.363-.923-.886-1.169-.886-1.169-.724-.495.055-.486.055-.486.802.057 1.223.824 1.223.824.712 1.218 1.87.867 2.326.663.072-.516.277-.866.503-1.064-1.763-.2-3.617-.881-3.617-3.927 0-.867.31-1.578.824-2.135-.083-.201-.358-1.009.078-2.101 0 0 .666-.213 2.185.815.635-.177 1.313-.266 1.986-.268.672.002 1.35.091 1.985.268 1.52-1.028 2.184-.815 2.184-.815.438 1.092.162 1.9.08 2.101.515.557.823 1.268.823 2.135 0 3.053-1.857 3.724-3.623 3.922.285.246.54.731.54 1.474 0 1.065-.01 1.923-.01 2.191 0 .213.144.463.55.383 3.179-1.067 5.468-4.059 5.468-7.594 0-4.418-3.582-8-8-8z"
-        />
-      </svg>
-      </a></li>
-    </ul>
-</div>-->
-<hr/>
-</div>
-<nav class="articles"><ul>
+        <main>
+            <div class="posts-list">
+                <ul>
     <li>
-    
     <h3 class="year"><p>2024</p></h3>
-    
     </li>
     
     <li>
-    <h3><a href="./post/21/post.html">&#128215 Meridian 2024 SVM Talk Technical References</a></h3>
+    <p>04/11/2024</p>
+    <h3><a href="./post/22/post.html">My Meridian 2024 Talks Recap &#128215</a></h3>
+    <p class="subtitle">
+
+TLDR this is the recap of my two Meridian talks. #Meridian2024 was actually the first Meridian I could attend, but the wait for
+ meeting irl the folks I worked with for the last years wa...</p>
+    <a href="./post/22/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/20/post.html">&#128215 Proposing a Safe On Chain Actions Standard through Smart Wallets</a></h3>
+    <p>15/10/2024</p>
+    <h3><a href="./post/21/post.html">Meridian 2024 SVM Talk Technical References copy &#128215</a></h3>
+    <p class="subtitle">
+
+If you've made it to this post, it likely means that you are interested in the more technical aspect of my [Meridian 2024](https://meridian.stellar.org) talk about the soroban virtual ma...</p>
+    <a href="./post/21/post.html">read more</a>
     </li>
     
     <li>
+    <p>19/08/2024</p>
+    <h3><a href="./post/20/post.html">Proposing a Safe On Chain Actions Standard through Smart Wallets &#128215</a></h3>
+    <p class="subtitle">
+
+In a [recent post](https://blog.xycloo.com/blog/blend-bot-with-zephyr-and-smart-accounts), XyclooLabs showed a proof-of-concept for using smart accounts for on-chain actions deployed on ...</p>
+    <a href="./post/20/post.html">read more</a>
+    </li>
     
+    <li>
     <h3 class="year"><p>2023</p></h3>
-    
     </li>
     
     <li>
-    <h3><a href="./post/18/post.html">&#128215 Going through Stellar Mainnet whole History with rs ingest copy</a></h3>
+    <p>22/09/2023</p>
+    <h3><a href="./post/18/post.html">Going through Stellar Mainnet whole History with rs ingest copy &#128215</a></h3>
+    <p class="subtitle">
+
+For those who do not know it, I've been working on a rust crate that allows for custom ingestion from a stellar core captive process. The crate is [rs-ingest](https://github.com/xycloo/r...</p>
+    <a href="./post/18/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/17/post.html">&#128215 Update 1: Soroban Zig sdk</a></h3>
+    <p>2/10/2023</p>
+    <h3><a href="./post/17/post.html">Update 1: Soroban Zig sdk &#128215</a></h3>
+    <p class="subtitle">
+
+I recently started learning Zig and as commitment to learning this language, which seems ergonomic and pretty close to Rust
+in terms of syntax, I started building a soroban SDK for it. 
+...</p>
+    <a href="./post/17/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/16/post.html">&#128215 Testing the first working version of Soroban Analyzer</a></h3>
+    <p>Jan 16, 2023</p>
+    <h3><a href="./post/16/post.html">Testing the first working version of Soroban Analyzer &#128215</a></h3>
+    <p class="subtitle">
+
+Hey there! It's been a couple of months since I wrote here. But I'm back with an interesting hands-on article about using [Soroban Analyzer](https://github.com/xycloo/soroban-analyzer)...</p>
+    <a href="./post/16/post.html">read more</a>
     </li>
     
     <li>
-    
     <h3 class="year"><p>2022</p></h3>
-    
     </li>
     
     <li>
-    <h3><a href="./post/15/post.html">&#128215 Playing with Soroban events</a></h3>
+    <p>events()</p>
+    <h3><a href="./post/15/post.html">Playing with Soroban events &#128215</a></h3>
+    <p class="subtitle"> handle in the environment that allows us to publish events. In this post we'll explore how to publish events, why a contract would publish one, and how to read...</p>
+    <a href="./post/15/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/14/post.html">&#128215 Rock paper scissors betting smart contract</a></h3>
+    <p></p>
+    <h3><a href="./post/14/post.html">Rock paper scissors betting smart contract &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/14/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/13/post.html">&#128215 Soroban advanced auth on the CLI</a></h3>
+    <p></p>
+    <h3><a href="./post/13/post.html">Soroban advanced auth on the CLI &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/13/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/12/post.html">&#128216 Now Also Markdown Here</a></h3>
+    <p></p>
+    <h3><a href="./post/12/post.html">Now Also Markdown Here &#128216</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/12/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/11/post.html">&#128215 Soroban commit reveal hashing scheme</a></h3>
+    <p></p>
+    <h3><a href="./post/11/post.html">Soroban commit reveal hashing scheme &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/11/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/10/post.html">&#128215 Soroban Dutch Auction Smart Contract</a></h3>
+    <p></p>
+    <h3><a href="./post/10/post.html">Soroban Dutch Auction Smart Contract &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/10/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/9/post.html">&#128215 Soroban CLI basics: deployment and playing with invocations</a></h3>
+    <p></p>
+    <h3><a href="./post/9/post.html">Soroban CLI basics: deployment and playing with invocations &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/9/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/8/post.html">&#128215 Soroban offices game smart contract</a></h3>
+    <p></p>
+    <h3><a href="./post/8/post.html">Soroban offices game smart contract &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/8/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/7/post.html">&#128215 Lottery smart contract with Soroban</a></h3>
+    <p></p>
+    <h3><a href="./post/7/post.html">Lottery smart contract with Soroban &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/7/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/6/post.html">&#128215 Vault smart contract with Soroban</a></h3>
+    <p></p>
+    <h3><a href="./post/6/post.html">Vault smart contract with Soroban &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/6/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/5/post.html">&#128215 RustWASM: receive js (nested) arrays as parameters</a></h3>
+    <p></p>
+    <h3><a href="./post/5/post.html">RustWASM: receive js (nested) arrays as parameters &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/5/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/4/post.html">&#128216 Personal notes on Elliptic curve pairings</a></h3>
+    <p></p>
+    <h3><a href="./post/4/post.html">Personal notes on Elliptic curve pairings &#128216</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/4/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/3/post.html">&#128216 Zokrates+Rust+WASM: personal notes on verifying zokrates built proofs with rustwasm</a></h3>
+    <p></p>
+    <h3><a href="./post/3/post.html">Zokrates+Rust+WASM: personal notes on verifying zokrates built proofs with rustwasm &#128216</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/3/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/2/post.html">&#128216 Rust: Groth16 Proof Verification From Scratch</a></h3>
+    <p></p>
+    <h3><a href="./post/2/post.html">Rust: Groth16 Proof Verification From Scratch &#128216</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/2/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/1/post.html">&#128215 Rust: wasm with no std allocator</a></h3>
+    <p></p>
+    <h3><a href="./post/1/post.html">Rust: wasm with no std allocator &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/1/post.html">read more</a>
     </li>
     
     <li>
-    <h3><a href="./post/0/post.html">&#128215 How I built this blog</a></h3>
+    <p></p>
+    <h3><a href="./post/0/post.html">How I built this blog &#128215</a></h3>
+    <p class="subtitle">...</p>
+    <a href="./post/0/post.html">read more</a>
     </li>
     </ul></nav></div></body>

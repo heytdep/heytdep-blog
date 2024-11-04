@@ -16,7 +16,7 @@ h3 {
 
 
 :root {
-  --color-anchor: #337ab7;
+  --color-anchor: rgb(249, 15, 18);
   --color-bg: #fff;
   --color-blockquote-text: #000;
   --color-code-bg: #c2c2c2;
@@ -148,6 +148,16 @@ ul {
     margin-bottom: 1em;
 }
 
+h1 {
+  margin-bottom: 1em;
+  margin-top: 2em;
+}
+
+h2, h3 {
+  margin-bottom: 1em;
+  margin-top: 1.3em;
+}
+
 .description {
     text-align: left;
     width: 100%;
@@ -184,7 +194,7 @@ a:link, a:visited, a:active, a:checked {
 
 hr {
   background-color: var(--color-divider);
-  height: 0.25em;
+  height: 2px;
   border:none;
 }
 

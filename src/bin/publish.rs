@@ -1,9 +1,9 @@
 use std::fs;
 use std::fs::File;
 use std::io::Write;
+use std::path::PathBuf;
 use std::process::Command;
 use std::str;
-use std::path::PathBuf;
 
 fn rename_dir(from: &str, to: &str) {
     let mut child = Command::new("mv")
@@ -18,7 +18,7 @@ fn rename_dir(from: &str, to: &str) {
 fn extract_name_from_filename(filename: &str) -> &str {
     // Split the filename by "--" and take the second part
     let parts: Vec<&str> = filename.split("--").collect();
-    
+
     parts[1]
 }
 
@@ -43,9 +43,10 @@ fn get_drafts() -> Vec<PathBuf> {
         let a_filename = a.file_name().unwrap().to_str().unwrap();
         let b_filename = b.file_name().unwrap().to_str().unwrap();
 
-        if let (Some(a_num), Some(b_num)) =
-            (extract_numeric_prefix(a_filename), extract_numeric_prefix(b_filename))
-        {
+        if let (Some(a_num), Some(b_num)) = (
+            extract_numeric_prefix(a_filename),
+            extract_numeric_prefix(b_filename),
+        ) {
             a_num.cmp(&b_num)
         } else {
             // Fallback to comparing full filenames if numeric prefix extraction fails
@@ -62,14 +63,14 @@ fn get_comp() -> Vec<PathBuf> {
         .map(|entry| entry.expect("Failed to read entry").path())
         .collect::<Vec<PathBuf>>();
 
-    
     paths.sort_by(|a, b| {
         let a_filename = a.file_name().unwrap().to_str().unwrap();
         let b_filename = b.file_name().unwrap().to_str().unwrap();
 
-        if let (Some(a_num), Some(b_num)) =
-            (extract_numeric_prefix(a_filename), extract_numeric_prefix(b_filename))
-        {
+        if let (Some(a_num), Some(b_num)) = (
+            extract_numeric_prefix(a_filename),
+            extract_numeric_prefix(b_filename),
+        ) {
             a_num.cmp(&b_num)
         } else {
             // Fallback to comparing full filenames if numeric prefix extraction fails
@@ -133,6 +134,13 @@ fn build_handler(name: String) {
     }}
     */
     </script>
+    <style>
+    code {{
+    background-color: #cdcdcd;
+    padding: 2px;
+    border-radius: 5px
+        }}
+    </style>
     </head>
     <body>
     <div id="post">
@@ -221,7 +229,6 @@ fn to_html_pd(name: String) {
         let _result1 = child1.wait().unwrap();
     }
 
-    
     //    fs::write(format!("./post/{}/index.html", &dir_name), out);
 }
 
@@ -254,7 +261,135 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
 <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{{"token": "e9adb517193447a3a9c4d5064ffa2550"}}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <style>
+:root {
+        --primary-color: #2d2d2d;
+        --secondary-color: #666;
+        --accent-color: rgb(249, 15, 18);
+        --background-color: #fff;
+        --container-width: 800px;
+    }
 
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        line-height: 1.6;
+        color: var(--primary-color);
+        background-color: var(--background-color);
+        padding: 2rem 1rem;
+    }
+
+    .container {
+        max-width: var(--container-width);
+        margin: 0 auto;
+    }
+
+    header {
+        margin-bottom: 3rem;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        color: var(--secondary-color);
+        font-size: 1.1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .bio {
+        max-width: 600px;
+        margin: 0 auto 1.5rem;
+        line-height: 1.7;
+    }
+
+    .note {
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        margin-top: 1rem;
+    }
+
+    a {
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .social-links {
+        margin-top: 1.5rem;
+    }
+
+    .social-links a {
+        display: inline-block;
+        margin: 0 0.5rem;
+        opacity: 0.7;
+        transition: opacity 0.2s;
+    }
+
+    .social-links a:hover {
+        opacity: 1;
+    }
+
+    .posts-list ul {
+        list-style: none;
+    }
+
+    .posts-list li {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    
+    .posts-list h3 {
+        font: 500 1rem/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    }
+
+    .posts-list h3 a {
+        text-decoration: none;
+        font-size: 1.3rem;
+        color: black
+        
+    }
+
+    .posts-list h3 a:hover {
+        color: var(--accent-color);
+    }
+
+    .year {
+        color: var(--secondary-color);
+        font-size: 1.4rem;
+        margin: 2rem 0 1rem;
+        border-bottom: none !important;
+    }
+
+    @media (max-width: 600px) {
+        body {
+            padding: 1rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        .bio {
+            font-size: 0.95rem;
+        }
+    }
 </style>
 
 "#,
@@ -268,32 +403,45 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
         rename_dir(&post, &post_href);
 
         let post_name_split: &Vec<&str> = &post.split(")--").collect();
-        
+
         if post_name_split.len() != 1 {
+            let content = fs::read(format!("./drafts/{}.md", post)).unwrap_or(vec![]);
+            let subtitle = content.split_at_checked(200).unwrap_or((&[], &[])).0;
+            let sub_string = String::from_utf8(subtitle.to_vec()).unwrap();
+
+            let (date, sub): (&str, &str) = {
+                let split = sub_string.split('`').collect::<Vec<&str>>();
+                (
+                    split.get(1).map_or("", |v| v),
+                    split.get(2).map_or("", |v| v),
+                )
+            };
+
             let mut dis_name = String::new();
+            dis_name.push_str(&post_name_split[2].replace("-", " "));
 
             if &post_name_split[1] == &"pub" {
-                dis_name.push_str("&#128215 ");
+                dis_name.push_str(" &#128215");
             } else {
-                dis_name.push_str("&#128216 ");
+                dis_name.push_str(" &#128216");
             }
 
-            dis_name.push_str(&post_name_split[2].replace("-", " "));
             li_list.push_str(&format!(
                 r#"
     <li>
+    <p>{}</p>
     <h3><a href="./post/{}/post.html">{}</a></h3>
+    <p class="subtitle">{}...</p>
+    <a href="./post/{}/post.html">read more</a>
     </li>
     "#,
-                &post_href, &dis_name
+                date, &post_href, &dis_name, sub, &post_href
             ))
         } else {
             li_list.push_str(&format!(
                 r#"
     <li>
-    
     <h3 class="year"><p>{}</p></h3>
-    
     </li>
     "#,
                 &post.split("--").collect::<Vec<&str>>()[1]
@@ -304,34 +452,24 @@ fn gen_index_content(mut posts: Vec<String>) -> String {
     let mut ul = String::from(
         r#"
 <body>
-<div id="content">
-<div class="heading">
+    <div class="container">
+        <header>
+            <h1 class="title">Tommaso De Ponti</h1>
+            <a href="https://x.com/heytdep" target="__blank"><div class="subtitle">@heytdep</div></a>
+            
+            <div class="bio">
+                <p>Co-founder <a target="_blank" href="https://github.com/xycloo/">Xycloo Labs</a>.</p>
+                <p>Working with VMs, cloud computing infra, and blockchain. Interested in research about VMs, validators, data ingestion, blockchain microstructure, and DeFi.</p>
+                <p class="note">Articles with the &#128215 suffix are intended for general public, 
+                   &#128216 are personal notes.</p>
+            </div>
+        </header>
 
-<h3>Tommaso De Ponti (@heytdep)</h3>
-
-<div class="description">
-<p>Co-founder <a target="_blank" href="https://github.com/xycloo/">Xycloo Labs</a>, part-time <a href="https://stellar.org/foundation">SDF</a> contractor. 
-Working with VMs, cloud computing infra, and blockchain.
-Articles with the &#128215 prefix are intended to be read by a general public, those with the &#128216 prefix are mostly personal notes.</p>
-
-<p>The content on this website is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.</p>
-</div>
-<br/>
-<!--<div id="icons">
-    <ul>
-        <li><a target="_blank" href="https://github.com/heytdep"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 16 16">
-        <path
-          d="M8 .188c-4.418 0-8 3.582-8 8 0 3.535 2.291 6.527 5.471 7.594.4.074.547-.174.547-.384 0-.191-.007-.876-.012-1.589-2.227.485-2.695-1.061-2.695-1.061-.363-.923-.886-1.169-.886-1.169-.724-.495.055-.486.055-.486.802.057 1.223.824 1.223.824.712 1.218 1.87.867 2.326.663.072-.516.277-.866.503-1.064-1.763-.2-3.617-.881-3.617-3.927 0-.867.31-1.578.824-2.135-.083-.201-.358-1.009.078-2.101 0 0 .666-.213 2.185.815.635-.177 1.313-.266 1.986-.268.672.002 1.35.091 1.985.268 1.52-1.028 2.184-.815 2.184-.815.438 1.092.162 1.9.08 2.101.515.557.823 1.268.823 2.135 0 3.053-1.857 3.724-3.623 3.922.285.246.54.731.54 1.474 0 1.065-.01 1.923-.01 2.191 0 .213.144.463.55.383 3.179-1.067 5.468-4.059 5.468-7.594 0-4.418-3.582-8-8-8z"
-        />
-      </svg>
-      </a></li>
-    </ul>
-</div>-->
-<hr/>
-</div>
-<nav class="articles"><ul>"#,
+        <main>
+            <div class="posts-list">
+                <ul>"#,
     );
-    
+
     ul.push_str(&li_list);
     ul.push_str("</ul></nav></div></body>");
 
@@ -345,14 +483,13 @@ fn write_index() {
     let posts = posts_dirs
         .iter()
         .filter_map(|entry| {
-            
-                entry.as_path()
-                    .file_name()
-                    .and_then(|n| n.to_str().map(|s| String::from(s)))
-            
+            entry
+                .as_path()
+                .file_name()
+                .and_then(|n| n.to_str().map(|s| String::from(s)))
         })
         .collect::<Vec<String>>();
-    
+
     let content = gen_index_content(posts);
     fs::write("./index.html", content);
     println!("[+] Successfully built posts");
@@ -361,15 +498,14 @@ fn write_index() {
 fn main() {
     preemptive_remove();
     let drafts = get_drafts();
-    
+
     let posts = drafts
         .iter()
         .filter_map(|entry| {
-            
-                entry.as_path()
-                    .file_name()
-                    .and_then(|n| n.to_str().map(|s| String::from(s)))
-            
+            entry
+                .as_path()
+                .file_name()
+                .and_then(|n| n.to_str().map(|s| String::from(s)))
         })
         .collect::<Vec<String>>();
 
