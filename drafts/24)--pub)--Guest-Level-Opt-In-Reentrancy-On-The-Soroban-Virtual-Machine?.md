@@ -45,3 +45,5 @@ There a few reasons why we'd want opt-in reentrancy:
 But I'd love for other developers and people in the community to share their thoughts on either the implementation
 or the motivation. [I've talked about this before](https://www.youtube.com/watch?v=P344_wKJshk&list=PLmr3tp_7-7Gh0NyWoqYkBkJC6kwDNqXJh&index=4), if community developers (and also the broader community) get more
 involved with the network's fundamentals that aligns the development in the right direction.
+
+You can share your ideas on the stellar developer [discord server channel dedicated to this PR](https://discord.com/channels/897514728459468821/1303662226930143264)'s discussion.
